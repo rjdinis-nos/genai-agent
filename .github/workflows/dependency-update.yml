@@ -64,8 +64,10 @@ jobs:
       if: env.DEPENDENCIES_UPDATED == 'true'
       run: |
         echo "🐳 Testing Docker build with updated dependencies..."
-        scripts/compose/build.sh
-        scripts/compose/test.sh
+        echo "GEMINI_API_KEY=test_key_for_deps" > .env
+        cd scripts/compose
+        ./build.sh
+        ./test.sh
         
     - name: Create Pull Request
       if: env.DEPENDENCIES_UPDATED == 'true'
@@ -151,7 +153,10 @@ jobs:
         echo "🐳 Running Docker security scan..."
         
         # Build image for scanning
-        scripts/compose/build.sh
+        echo "GEMINI_API_KEY=test_key_for_security" > .env
+        cd scripts/compose
+        ./build.sh
+        cd ../..
         
         # Run Trivy scan
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
@@ -160,7 +165,7 @@ jobs:
           --format table \
           --exit-code 1 \
           --severity HIGH,CRITICAL \
-          fastapi-file-downloader:latest || true
+          genai-agent:latest || true
           
     - name: Create security issue
       if: failure()
