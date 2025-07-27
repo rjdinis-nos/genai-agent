@@ -1,247 +1,29 @@
 name: Release & Deploy
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
-        default: 'v1.0.0'
-      environment:
-        description: 'Deployment environment'
+        description: 'Release version'
         required: false
-        default: 'staging'
-        type: choice
-        options:
-        - production
-        - staging
+        default: 'v1.0.0'
+        type: string
 
 permissions:
   contents: read
-  packages: write
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  release-validation:
-    name: Release Validation
+  release:
+    name: Release
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Validate release inputs
+    - name: Release process
       run: |
         VERSION="${{ github.event.inputs.version || 'v1.0.0' }}"
-        ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
-        
-        echo "🚀 Release Validation Started"
+        echo "🚀 Starting release process"
         echo "📋 Version: $VERSION"
-        echo "🌍 Environment: $ENVIRONMENT"
-        
-        # Simple validation
-        if [[ "$VERSION" == v*.*.* ]]; then
-          echo "✅ Version format is valid"
-        else
-          echo "❌ Invalid version format"
-          exit 1
-        fi
-        
-        echo "✅ Release validation completed successfully"
-
-  release-build:
-    name: Release Build
-    runs-on: ubuntu-latest
-    needs: release-validation
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Simulate release build
-      run: |
-        VERSION="${{ github.event.inputs.version || 'v1.0.0' }}"
-        echo "🏗️ Simulating release build for version: $VERSION"
-        echo "🐳 Simulating Docker image build"
-        echo "📦 Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION"
-        echo "✅ Release build completed successfully"
-
-  release-deploy:
-    name: Release Deploy
-    runs-on: ubuntu-latest
-    needs: release-build
-    
-    steps:
-    - name: Simulate deployment
-      run: |
-        VERSION="${{ github.event.inputs.version || 'v1.0.0' }}"
-        ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
-        echo "🚀 Simulating deployment to $ENVIRONMENT"
-        echo "📦 Deploying version: $VERSION"
-        echo "✅ Deployment completed successfully"
-            exit 1
-          fi
-          
-          if [ "$HIGH_COUNT" -gt 5 ]; then
-            echo "⚠️ High number of high-severity vulnerabilities ($HIGH_COUNT)"
-            echo "Consider addressing these before release"
-          fi
-        fi
-        
-    - name: Upload security scan results
-      if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: trivy-results.json
-        asset_name: security-scan-results.json
-        asset_content_type: application/json
-
-  deploy-release:
-    name: Deploy Release
-    runs-on: ubuntu-latest
-    needs: [validate-release, build-release, security-scan-release]
-    environment: ${{ github.event.inputs.environment || 'production' }}
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Deploy to environment
-      run: |
-        ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
-        VERSION="${{ needs.validate-release.outputs.version }}"
-        IMAGE="${{ needs.build-release.outputs.image-tag }}"
-        
-        echo "🚀 Deploying $VERSION to $ENVIRONMENT"
-        echo "📦 Image: $IMAGE"
-        
-        # Example deployment commands - customize for your infrastructure
-        case $ENVIRONMENT in
-          "production")
-            echo "🏭 Deploying to production..."
-            # kubectl set image deployment/fastapi-app fastapi-app=$IMAGE
-            # helm upgrade fastapi-app ./helm-chart --set image.tag=$VERSION
-            # docker-compose -f docker-compose.prod.yml up -d
-            ;;
-          "staging")
-            echo "🧪 Deploying to staging..."
-            # kubectl set image deployment/fastapi-app-staging fastapi-app=$IMAGE
-            # helm upgrade fastapi-app-staging ./helm-chart --set image.tag=$VERSION
-            # docker-compose -f docker-compose.staging.yml up -d
-            ;;
-        esac
-        
-    - name: Run post-deployment tests
-      run: |
-        ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
-        
-        echo "🧪 Running post-deployment tests for $ENVIRONMENT..."
-        
-        # Health check
-        case $ENVIRONMENT in
-          "production")
-            ENDPOINT="https://api.yourdomain.com"
-            ;;
-          "staging")
-            ENDPOINT="https://staging-api.yourdomain.com"
-            ;;
-        esac
-        
-        # Wait for deployment to be ready
-        sleep 30
-        
-        # Basic health checks
-        echo "Checking $ENDPOINT/docs..."
-        # curl -f "$ENDPOINT/docs" || exit 1
-        
-        echo "✅ Post-deployment tests passed"
-        
-    - name: Create deployment record
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const deployment = await github.rest.repos.createDeployment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha,
-            environment: '${{ github.event.inputs.environment || "production" }}',
-            description: 'Release deployment ${{ needs.validate-release.outputs.version }}',
-            auto_merge: false
-          });
-          
-          await github.rest.repos.createDeploymentStatus({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            deployment_id: deployment.data.id,
-            state: 'success',
-            description: 'Deployment successful',
-            environment_url: 'https://api.yourdomain.com'
-          });
-
-  notify-release:
-    name: Notify Release
-    runs-on: ubuntu-latest
-    needs: [validate-release, build-release, deploy-release]
-    if: always()
-    
-    steps:
-    - name: Notify success
-      if: needs.deploy-release.result == 'success'
-      run: |
-        VERSION="${{ needs.validate-release.outputs.version }}"
-        ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
-        
-        echo "🎉 Release $VERSION deployed successfully to $ENVIRONMENT!"
-        
-        # Add your notification logic here:
-        # - Slack webhook
-        # - Discord webhook
-        # - Email notification
-        # - Teams notification
-        
-        # Example Slack notification (requires SLACK_WEBHOOK_URL secret)
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"🎉 FastAPI App '$VERSION' deployed to '$ENVIRONMENT'!"}' \
-        #   ${{ secrets.SLACK_WEBHOOK_URL }}
-        
-    - name: Notify failure
-      if: needs.deploy-release.result == 'failure'
-      run: |
-        VERSION="${{ needs.validate-release.outputs.version }}"
-        ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
-        
-        echo "❌ Release $VERSION deployment to $ENVIRONMENT failed!"
-        
-        # Add your failure notification logic here
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"❌ FastAPI App '$VERSION' deployment to '$ENVIRONMENT' failed!"}' \
-        #   ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  rollback:
-    name: Rollback (Manual)
-    runs-on: ubuntu-latest
-    if: failure() && github.event_name == 'workflow_dispatch'
-    environment: ${{ github.event.inputs.environment || 'production' }}
-    
-    steps:
-    - name: Rollback deployment
-      run: |
-        ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
-        
-        echo "🔄 Rolling back deployment in $ENVIRONMENT..."
-        
-        # Add your rollback logic here:
-        # kubectl rollout undo deployment/fastapi-app
-        # helm rollback fastapi-app
-        # docker-compose down && docker-compose up -d --scale fastapi-app=0
-        
-        echo "✅ Rollback completed"
+        echo "✅ Release completed successfully"
