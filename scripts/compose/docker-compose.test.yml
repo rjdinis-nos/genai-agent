@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   fastapi-test:
     build:
       context: ..
-      dockerfile: .docker/Dockerfile.test
+      dockerfile: scripts/compose/Dockerfile.test
     container_name: fastapi-test
     environment:
       - PYTHONPATH=/app
