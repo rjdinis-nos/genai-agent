@@ -10,6 +10,78 @@ This directory contains command-line interface tools for interacting with the Ge
 
 ## Available CLI Tools
 
+### 📥 `download-file.sh`
+Comprehensive CLI tool for downloading files using the GenAI Agent /download endpoint.
+
+```bash
+./scripts/cli/download-file.sh [OPTIONS] <URL>
+```
+
+**Parameters:**
+- `URL` (required): The URL of the file to download
+
+**Options:**
+- `-h, --host HOST`: API host (default: localhost)
+- `-p, --port PORT`: API port (default: 8000)
+- `-s, --secure`: Use HTTPS instead of HTTP
+- `-o, --output FILE`: Output filename (default: extracted from URL)
+- `-d, --directory DIR`: Output directory (default: current directory)
+- `-v, --verbose`: Verbose output
+- `--help`: Show help message
+
+**Examples:**
+```bash
+# Basic usage
+./scripts/cli/download-file.sh https://example.com/document.pdf
+
+# With custom output filename
+./scripts/cli/download-file.sh -o my-file.pdf https://example.com/document.pdf
+
+# With custom server and HTTPS
+./scripts/cli/download-file.sh -h api.example.com -p 443 -s https://example.com/document.pdf
+
+# With output directory and verbose mode
+./scripts/cli/download-file.sh -d downloads/ -v https://example.com/document.pdf
+```
+
+**Features:**
+- ✅ URL validation and format checking
+- ✅ Server availability verification
+- ✅ Colored output with status indicators
+- ✅ Comprehensive error handling
+- ✅ Configurable host, port, and protocol
+- ✅ Custom output filename and directory
+- ✅ File overwrite protection
+- ✅ HTTP status code handling
+- ✅ Verbose mode for debugging
+
+### 📥 `download.sh`
+Simple one-liner CLI tool for quick file downloads.
+
+```bash
+./scripts/cli/download.sh <URL> [output_file]
+```
+
+**Parameters:**
+- `URL` (required): The URL of the file to download
+- `output_file` (optional): Output filename (default: extracted from URL)
+
+**Environment Variables:**
+- `GENAI_HOST`: Override default host (default: localhost)
+- `GENAI_PORT`: Override default port (default: 8000)
+
+**Examples:**
+```bash
+# Basic usage
+./scripts/cli/download.sh https://example.com/document.pdf
+
+# With custom output filename
+./scripts/cli/download.sh https://example.com/document.pdf my-document.pdf
+
+# With custom server
+GENAI_HOST=api.example.com GENAI_PORT=8080 ./scripts/cli/download.sh https://example.com/file.pdf
+```
+
 ### 📄 `summarize-pdf.sh`
 Comprehensive CLI tool for PDF summarization with error handling and status feedback.
 
