@@ -28,7 +28,12 @@ cd "$(dirname "$0")/.."
 # Build the main image first if it doesn't exist
 if ! docker image inspect genai-agent:latest > /dev/null 2>&1; then
     echo "📦 Main image not found. Building..."
-    $(dirname "$0")/build.sh
+    BUILD_SCRIPT="$(dirname "$0")/build.sh"
+    if [ ! -x "$BUILD_SCRIPT" ]; then
+        echo "❌ Error: Build script not found or not executable at $BUILD_SCRIPT"
+        exit 1
+    fi
+    "$BUILD_SCRIPT"
 fi
 
 echo "🧪 Running tests in container..."
