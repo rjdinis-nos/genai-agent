@@ -48,6 +48,58 @@ Runs the Docker container locally for development/testing.
 - Loads environment variables from `.env` file
 - Provides health check and status information
 
+### 📄 `summarize-pdf.sh`
+Comprehensive CLI tool for PDF summarization with error handling and status feedback.
+
+```bash
+./scripts/summarize-pdf.sh <pdf_file_path> [server_url]
+```
+
+**Parameters:**
+- `pdf_file_path` (required): Path to the PDF file to summarize
+- `server_url` (optional): GenAI Agent server URL (default: `http://localhost:8000`)
+
+**Environment Variables:**
+- `GENAI_SERVER_URL`: Override default server URL
+- `GENAI_TIMEOUT`: Request timeout in seconds (default: 60)
+
+**Examples:**
+```bash
+./scripts/summarize-pdf.sh document.pdf
+./scripts/summarize-pdf.sh /path/to/report.pdf http://localhost:8000
+GENAI_SERVER_URL=https://genai-agent.example.com ./scripts/summarize-pdf.sh paper.pdf
+```
+
+**Features:**
+- File validation and PDF format checking
+- Server availability verification
+- Colored output with status indicators
+- Comprehensive error handling
+- Timeout configuration
+- Help documentation (`-h` or `--help`)
+
+### 📄 `summarize.sh`
+Simple one-liner for quick PDF summarization.
+
+```bash
+./scripts/summarize.sh <pdf_file_path> [server_url]
+```
+
+**Parameters:**
+- `pdf_file_path` (required): Path to the PDF file to summarize
+- `server_url` (optional): GenAI Agent server URL (default: `http://localhost:8000`)
+
+**Example:**
+```bash
+./scripts/summarize.sh document.pdf
+./scripts/summarize.sh report.pdf http://localhost:3000
+```
+
+**Features:**
+- Minimal dependencies (curl, jq)
+- JSON response parsing
+- Quick and simple usage
+
 ### 🌐 `deploy.sh`
 Deploys the Docker container for production use.
 
