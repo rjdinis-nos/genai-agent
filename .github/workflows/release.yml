@@ -140,7 +140,7 @@ jobs:
     - name: Generate SBOM
       uses: anchore/sbom-action@v0
       with:
-        image: ${{ steps.meta.outputs.tags }}
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
         format: spdx-json
         output-file: sbom.spdx.json
         
@@ -170,7 +170,7 @@ jobs:
     - name: Run comprehensive security scan
       uses: aquasecurity/trivy-action@0.24.0
       with:
-        image-ref: ${{ needs.build-release.outputs.image-tag }}
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
         format: 'sarif'
         output: 'trivy-results.sarif'
         
@@ -183,7 +183,7 @@ jobs:
     - name: Run security scan with JSON output
       uses: aquasecurity/trivy-action@0.24.0
       with:
-        image-ref: ${{ needs.build-release.outputs.image-tag }}
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
         format: 'json'
         output: 'trivy-results.json'
         
@@ -234,7 +234,7 @@ jobs:
       run: |
         ENVIRONMENT="${{ needs.validate-release.outputs.environment }}"
         VERSION="${{ needs.validate-release.outputs.version }}"
-        IMAGE="${{ needs.build-release.outputs.image-tag }}"
+        IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION"
         
         echo "🚀 Deploying $VERSION to $ENVIRONMENT"
         echo "📦 Image: $IMAGE"
@@ -315,9 +315,10 @@ jobs:
       run: |
         VERSION="${{ needs.validate-release.outputs.version }}"
         ENVIRONMENT="${{ needs.validate-release.outputs.environment }}"
+        IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION"
         
         echo "🎉 Release $VERSION deployed successfully to $ENVIRONMENT!"
-        echo "📦 Image: ${{ needs.build-release.outputs.image-tag }}"
+        echo "📦 Image: $IMAGE"
         echo "🔒 Security scan: Passed"
         
         # Add your notification logic here:
