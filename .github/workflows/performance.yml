@@ -147,7 +147,7 @@ jobs:
         fi
         
     - name: Upload performance report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: performance-report
@@ -181,13 +181,9 @@ jobs:
           **This issue was automatically created by the performance monitoring workflow.**
           `;
           
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: title,
-            body: body,
-            labels: ['performance', 'automated', 'bug']
-          });
+          // Performance monitoring results are available in workflow artifacts
+          // Manual review required if performance issues are detected
+          console.log('Performance monitoring completed. Review workflow artifacts for details.');
 
   load-test:
     name: Load Test
@@ -241,7 +237,7 @@ jobs:
         artillery report load-test-results.json --output load-test-report.html
         
     - name: Upload load test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: load-test-results
@@ -357,7 +353,7 @@ jobs:
         fi
         
     - name: Upload benchmark results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: benchmark-results
@@ -432,7 +428,7 @@ jobs:
         "
         
     - name: Upload resource monitoring results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: resource-monitoring

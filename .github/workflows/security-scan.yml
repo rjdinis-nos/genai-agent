@@ -31,34 +31,8 @@ jobs:
         head: HEAD
         extra_args: --debug --only-verified
 
-    - name: Create issue on secret detection
-      if: failure()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: '🔐 Secrets Detected in Repository',
-            body: `
-            ## Security Alert: Secrets Detected
-            
-            TruffleHog has detected potential secrets in the repository.
-            
-            **Immediate Actions Required:**
-            1. Review the scan results in the workflow logs
-            2. Rotate any exposed credentials immediately
-            3. Remove secrets from git history if necessary
-            4. Update security policies to prevent future exposure
-            
-            **Workflow:** ${{ github.workflow }}
-            **Run ID:** ${{ github.run_id }}
-            **Commit:** ${{ github.sha }}
-            
-            **View Logs:** [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            `,
-            labels: ['security', 'secrets', 'critical']
-          });
+    # Secret detection results are logged in workflow output
+    # Manual review of logs required if secrets are detected
 
   dependency-scan:
     name: Dependency Vulnerability Scan
@@ -101,34 +75,5 @@ jobs:
           semgrep-report.json
         retention-days: 30
 
-    - name: Create issue on vulnerabilities
-      if: failure()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: '🛡️ Security Vulnerabilities Detected',
-            body: `
-            ## Security Vulnerability Alert
-            
-            Security scanning has detected potential vulnerabilities in dependencies or code.
-            
-            **Scans Performed:**
-            - Safety: Python dependency vulnerability check
-            - Bandit: Python code security analysis
-            - Semgrep: Static analysis security scan
-            
-            **Action Required:**
-            1. Download and review security reports from workflow artifacts
-            2. Update vulnerable dependencies
-            3. Fix identified code security issues
-            4. Re-run security scans after fixes
-            
-            **Workflow:** ${{ github.workflow }}
-            **Run ID:** ${{ github.run_id }}
-            **Artifacts:** [Security Reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            `,
-            labels: ['security', 'vulnerabilities', 'dependencies']
-          });
+    # Security scan results are available in workflow artifacts
+    # Manual review of security reports required if vulnerabilities are detected
