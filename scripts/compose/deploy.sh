@@ -31,25 +31,25 @@ if [ ! -f ".env" ]; then
 fi
 
 # Navigate to project root
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 # Update port in compose file if different from default
 if [ "$HOST_PORT" != "80" ]; then
     echo "🔧 Using custom port: $HOST_PORT"
-    export HOST_PORT
 fi
 
-# Stop any existing containers
+# Stop any existing production containers
 echo "🛑 Stopping existing production containers..."
-docker compose -f "$(realpath "${COMPOSE_FILE}")" down > /dev/null 2>&1 || true
+docker compose -f "scripts/compose/docker-compose.prod.yml" down > /dev/null 2>&1 || true
 
 # Deploy the application
 echo "🐳 Deploying production containers..."
+COMPOSE_FILE_ABS="scripts/compose/docker-compose.prod.yml"
 if [ "$HOST_PORT" != "80" ]; then
     # Override port mapping
-    sed "s/80:8000/${HOST_PORT}:8000/" "${COMPOSE_FILE}" | docker compose -f - up -d --build
+    sed "s/80:8000/${HOST_PORT}:8000/" "$COMPOSE_FILE_ABS" | docker compose -f - up -d --build
 else
-    docker compose -f "$(realpath "${COMPOSE_FILE}")" up -d --build
+    docker compose -f "$COMPOSE_FILE_ABS" up -d --build
 fi
 
 # Wait for application to start

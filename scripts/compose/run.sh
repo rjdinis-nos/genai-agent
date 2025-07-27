@@ -32,7 +32,7 @@ if [ ! -f ".env" ]; then
 fi
 
 # Navigate to project root
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 # Update port in compose file if different from default
 if [ "$HOST_PORT" != "8000" ]; then
@@ -42,11 +42,11 @@ fi
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
-docker compose -f "$(dirname "$0")/docker-compose.yml" down > /dev/null 2>&1 || true
+docker compose -f "scripts/compose/docker-compose.yml" down > /dev/null 2>&1 || true
 
 # Start the application
 echo "🐳 Starting application containers..."
-COMPOSE_FILE_ABS="$(dirname "$0")/docker-compose.yml"
+COMPOSE_FILE_ABS="scripts/compose/docker-compose.yml"
 if [ "$HOST_PORT" != "8000" ]; then
     # Override port mapping
     docker compose -f "$COMPOSE_FILE_ABS" up -d --build
