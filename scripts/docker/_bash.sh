@@ -61,16 +61,16 @@ done
 get_compose_file() {
     case $ENVIRONMENT in
         dev)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
             ;;
         prod)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.prod.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
             ;;
         test)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.test.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
             ;;
         *)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
             ;;
     esac
 }

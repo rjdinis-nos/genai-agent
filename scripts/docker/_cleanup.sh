@@ -39,9 +39,9 @@ NC='\033[0m' # No Color
 
 # Configuration
 SCRIPT_DIR="$(dirname "$0")"
-DEV_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
-PROD_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.prod.yml"
-TEST_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.test.yml"
+DEV_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
+PROD_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
+TEST_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
 
 # Default values
 DRY_RUN=false

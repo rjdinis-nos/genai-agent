@@ -67,7 +67,7 @@ check_server() {
     if ! curl -s --max-time "$timeout" "$server_url/docs" > /dev/null 2>&1; then
         echo -e "${RED}Error: GenAI Agent server is not accessible at $server_url${NC}" >&2
         echo -e "${YELLOW}Make sure the server is running:${NC}" >&2
-        echo -e "  ${YELLOW}cd $(dirname "$SCRIPT_DIR") && uv run uvicorn backend.main:app --reload${NC}" >&2
+        echo -e "  ${YELLOW}cd $(dirname "$SCRIPT_DIR") && uv run uvicorn src.main:app --reload${NC}" >&2
         echo -e "  ${YELLOW}or use Docker: ./scripts/run.sh${NC}" >&2
         exit 1
     fi

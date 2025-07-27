@@ -19,7 +19,7 @@ COPY pyproject.toml uv.lock README.md ./
 RUN uv sync
 
 # Copy application code
-COPY backend/ ./backend/
+COPY src/ ./src/
 COPY .env* ./
 
 # Create downloads directory
@@ -37,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/docs || exit 1
 
 # Run the application
-CMD ["uv", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

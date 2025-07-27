@@ -5,8 +5,8 @@ import os
 import sys
 from unittest.mock import Mock, patch
 
-# Add backend to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 try:
     from main import app
@@ -72,7 +72,7 @@ class TestAPIBenchmarks:
         result = benchmark(client.get, "/")
         assert result.status_code == 200
         
-    @patch('backend.main.requests.get')
+    @patch('src.main.requests.get')
     def test_download_endpoint_benchmark(self, mock_get, benchmark):
         """Benchmark the download endpoint."""
         mock_response = Mock()
@@ -93,10 +93,10 @@ class TestAPIBenchmarks:
         
     @pytest.mark.skip(reason="Temporarily skipping while fixing mock setup for file operations")
     @patch.dict(os.environ, {'GEMINI_API_KEY': 'test_key'})
-    @patch('backend.main.genai.GenerativeModel')
-    @patch('backend.main.PdfReader')
-    @patch('backend.main.tempfile.NamedTemporaryFile')
-    @patch('backend.main.os.unlink')
+    @patch('src.main.genai.GenerativeModel')
+    @patch('src.main.PdfReader')
+    @patch('src.main.tempfile.NamedTemporaryFile')
+    @patch('src.main.os.unlink')
     def test_summarize_endpoint_benchmark(self, mock_unlink, mock_temp_file, mock_pdf_class, mock_genai, benchmark):
         """Benchmark the summarize endpoint."""
         # Mock temporary file

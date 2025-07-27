@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 import io
 
 # Import the app
-from backend.main import app
+from src.main import app
 
 # Create test client
 client = TestClient(app)
@@ -15,7 +15,7 @@ client = TestClient(app)
 class TestDownloadEndpoint:
     """Test cases for the /download endpoint"""
     
-    @patch('backend.main.requests.get')
+    @patch('src.main.requests.get')
     def test_download_file_success(self, mock_get):
         """Test successful file download"""
         # Mock response
@@ -41,7 +41,7 @@ class TestDownloadEndpoint:
         # Verify requests.get was called with correct URL
         mock_get.assert_called_once_with(test_url, stream=True)
     
-    @patch('backend.main.requests.get')
+    @patch('src.main.requests.get')
     def test_download_file_with_content_disposition(self, mock_get):
         """Test file download with Content-Disposition header"""
         # Mock response with Content-Disposition header
@@ -61,7 +61,7 @@ class TestDownloadEndpoint:
         data = response.json()
         assert "custom_name.pdf" in data["file_path"]
     
-    @patch('backend.main.requests.get')
+    @patch('src.main.requests.get')
     def test_download_file_request_error(self, mock_get):
         """Test download failure due to request error"""
         # Mock request exception
@@ -74,7 +74,7 @@ class TestDownloadEndpoint:
         assert response.status_code == 400
         assert "Network error" in response.json()["detail"]
     
-    @patch('backend.main.requests.get')
+    @patch('src.main.requests.get')
     def test_download_file_http_error(self, mock_get):
         """Test download failure due to HTTP error"""
         # Mock HTTP error
@@ -97,10 +97,10 @@ class TestSummarizeEndpoint:
         """Create mock PDF content for testing"""
         return b"%PDF-1.4\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n"
     
-    @patch('backend.main.genai.GenerativeModel')
-    @patch('backend.main.genai.configure')
-    @patch('backend.main.PdfReader')
-    @patch('backend.main.os.getenv')
+    @patch('src.main.genai.GenerativeModel')
+    @patch('src.main.genai.configure')
+    @patch('src.main.PdfReader')
+    @patch('src.main.os.getenv')
     def test_summarize_pdf_success(self, mock_getenv, mock_pdf_reader, mock_configure, mock_model_class):
         """Test successful PDF summarization"""
         # Mock environment variable
@@ -129,7 +129,7 @@ class TestSummarizeEndpoint:
             mock_temp_file.__enter__.return_value = mock_temp_file
             mock_temp.return_value = mock_temp_file
             
-            with patch('backend.main.os.unlink'):
+            with patch('src.main.os.unlink'):
                 response = client.post(
                     "/summarize",
                     files={"file": ("test.pdf", pdf_content, "application/pdf")}
@@ -145,7 +145,7 @@ class TestSummarizeEndpoint:
         mock_model_class.assert_called_once_with('gemini-pro')
         mock_model.generate_content.assert_called_once()
     
-    @patch('backend.main.os.getenv')
+    @patch('src.main.os.getenv')
     def test_summarize_pdf_missing_api_key(self, mock_getenv):
         """Test PDF summarization with missing API key"""
         # Mock missing API key
@@ -160,8 +160,8 @@ class TestSummarizeEndpoint:
         
         assert response.status_code == 400
     
-    @patch('backend.main.PdfReader')
-    @patch('backend.main.os.getenv')
+    @patch('src.main.PdfReader')
+    @patch('src.main.os.getenv')
     def test_summarize_pdf_reader_error(self, mock_getenv, mock_pdf_reader):
         """Test PDF summarization with PDF reading error"""
         # Mock environment variable
@@ -186,10 +186,10 @@ class TestSummarizeEndpoint:
         assert response.status_code == 400
         assert "Invalid PDF format" in response.json()["detail"]
     
-    @patch('backend.main.genai.GenerativeModel')
-    @patch('backend.main.genai.configure')
-    @patch('backend.main.PdfReader')
-    @patch('backend.main.os.getenv')
+    @patch('src.main.genai.GenerativeModel')
+    @patch('src.main.genai.configure')
+    @patch('src.main.PdfReader')
+    @patch('src.main.os.getenv')
     def test_summarize_pdf_gemini_error(self, mock_getenv, mock_pdf_reader, mock_configure, mock_model_class):
         """Test PDF summarization with Gemini API error"""
         # Mock environment variable
@@ -215,7 +215,7 @@ class TestSummarizeEndpoint:
             mock_temp_file.__enter__.return_value = mock_temp_file
             mock_temp.return_value = mock_temp_file
             
-            with patch('backend.main.os.unlink'):
+            with patch('src.main.os.unlink'):
                 response = client.post(
                     "/summarize",
                     files={"file": ("test.pdf", pdf_content, "application/pdf")}
@@ -249,7 +249,7 @@ class TestAppConfiguration:
     
     def test_downloads_directory_creation(self):
         """Test that downloads directory is created"""
-        from backend.main import download_dir
+        from src.main import download_dir
         assert download_dir.name == "downloads"
 
 

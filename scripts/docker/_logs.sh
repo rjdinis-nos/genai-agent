@@ -7,8 +7,8 @@ set -e  # Exit on any error
 
 # Configuration
 SCRIPT_DIR="$(realpath "$(dirname "$0")")"
-DEV_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
-PROD_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.prod.yml"
+DEV_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
+PROD_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
 
 # Function to show usage
 show_usage() {

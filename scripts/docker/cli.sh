@@ -28,13 +28,13 @@ get_compose_file() {
     local env="${1:-$DEFAULT_ENV}"
     case "$env" in
         dev)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
             ;;
         prod)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.prod.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
             ;;
         test)
-            echo "$SCRIPT_DIR/../.docker/docker-compose.test.yml"
+            echo "$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
             ;;
         *)
             echo -e "${RED}❌ Invalid environment: $env. Valid options: dev, prod, test${NC}" >&2

@@ -24,13 +24,13 @@ get_compose_file() {
     local env="${1:-$DEFAULT_ENV}"
     case "$env" in
         dev)
-            echo "$SOURCE_DIR/../.docker/docker-compose.dev.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.dev.yml"
             ;;
         prod)
-            echo "$SOURCE_DIR/../.docker/docker-compose.prod.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.prod.yml"
             ;;
         test)
-            echo "$SOURCE_DIR/../.docker/docker-compose.test.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.test.yml"
             ;;
         *)
             echo -e "${RED}❌ Invalid environment: $env. Valid options: dev, prod, test${NC}" >&2
@@ -66,7 +66,7 @@ init_environment() {
     echo -e "${BLUE}📋 Generating Docker environment file...${NC}"
     "$SOURCE_DIR/_generate-env.sh"
     ENV_FILE="$SOURCE_DIR/.env.docker"
-    SCRIPT_DIR="$(realpath "$(dirname "$0)")"
+    SCRIPT_DIR="$(realpath "$(dirname "$0")")"
     
     # Verify Docker is available
     if ! docker info > /dev/null 2>&1; then

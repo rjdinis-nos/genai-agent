@@ -286,7 +286,7 @@ Make sure the GenAI Agent server is running before using these tools:
 ```bash
 # Start server locally
 cd /path/to/genai-agent
-uv run uvicorn backend.main:app --reload
+uv run uvicorn src.main:app --reload
 
 # Or using Docker
 ./scripts/docker/run.sh

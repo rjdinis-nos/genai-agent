@@ -24,13 +24,13 @@ get_compose_file() {
     local env="${1:-$DEFAULT_ENV}"
     case "$env" in
         dev)
-            echo "$SOURCE_DIR/../.docker/docker-compose.dev.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.dev.yml"
             ;;
         prod)
-            echo "$SOURCE_DIR/../.docker/docker-compose.prod.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.prod.yml"
             ;;
         test)
-            echo "$SOURCE_DIR/../.docker/docker-compose.test.yml"
+            echo "$SOURCE_DIR/../../.docker/docker-compose.test.yml"
             ;;
         *)
             echo -e "${RED}❌ Invalid environment: $env. Valid options: dev, prod, test${NC}" >&2
