@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE="scripts/compose/docker-compose.test.yml"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.test.yml"
 
 echo "🧪 Running tests with Docker Compose"
 echo "===================================="
@@ -28,14 +28,14 @@ cd "$(dirname "$0")/.."
 # Build the main image first if it doesn't exist
 if ! docker image inspect genai-agent:latest > /dev/null 2>&1; then
     echo "📦 Main image not found. Building..."
-    scripts/compose/build.sh
+    $(dirname "$0")/build.sh
 fi
 
 echo "🧪 Running tests in container..."
 echo ""
 
 # Run tests using Docker Compose
-if docker compose -f "${COMPOSE_FILE}" --profile test run --rm fastapi-test; then
+if docker compose -f "$(realpath "${COMPOSE_FILE}")" --profile test run --rm fastapi-test; then
     echo ""
     echo "✅ All tests passed in container!"
     
@@ -43,8 +43,8 @@ if docker compose -f "${COMPOSE_FILE}" --profile test run --rm fastapi-test; the
     echo "🎉 Container testing completed successfully!"
     echo ""
     echo "📋 Next steps:"
-    echo "   • Deploy with: scripts/compose/deploy.sh"
-    echo "   • Run locally: scripts/compose/run.sh"
+    echo "   • Deploy with: $(dirname "$0")/deploy.sh"
+    echo "   • Run locally: $(dirname "$0")/run.sh"
 else
     echo ""
     echo "❌ Tests failed in container!"
@@ -59,4 +59,4 @@ fi
 
 # Clean up test containers
 echo "🧹 Cleaning up test containers..."
-docker compose -f "${COMPOSE_FILE}" --profile test down > /dev/null 2>&1 || true
+docker compose -f "$(realpath "${COMPOSE_FILE}")" --profile test down > /dev/null 2>&1 || true

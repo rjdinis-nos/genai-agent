@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE="scripts/compose/docker-compose.yml"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.yml"
 HOST_PORT="${1:-8000}"
 
 echo "🚀 Running FastAPI application with Docker Compose"
@@ -42,16 +42,17 @@ fi
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
-docker compose -f "${COMPOSE_FILE}" down > /dev/null 2>&1 || true
+docker compose -f "$(dirname "$0")/docker-compose.yml" down > /dev/null 2>&1 || true
 
 # Start the application
-echo "🐳 Starting application containers..."
+echo "🚀 Starting application..."
+COMPOSE_FILE_ABS="$(dirname "$0")/docker-compose.yml"
 if [ "$HOST_PORT" != "8000" ]; then
     # Override port mapping
-    docker compose -f "${COMPOSE_FILE}" up -d --build
-    docker compose -f "${COMPOSE_FILE}" exec fastapi-app sh -c "sed -i 's/8000:8000/${HOST_PORT}:8000/' /etc/hosts" || true
+    docker compose -f "$COMPOSE_FILE_ABS" up -d --build
+    docker compose -f "$COMPOSE_FILE_ABS" exec fastapi-app sh -c "sed -i 's/8000:8000/${HOST_PORT}:8000/' /etc/hosts" || true
 else
-    docker compose -f "${COMPOSE_FILE}" up -d --build
+    docker compose -f "$COMPOSE_FILE_ABS" up -d --build
 fi
 
 # Wait for application to start
@@ -59,7 +60,7 @@ echo "⏳ Waiting for application to start..."
 sleep 5
 
 # Check if container is running
-if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" | grep -q "fastapi-app"; then
+if docker compose -f "$(realpath "${COMPOSE_FILE}")" ps --services --filter "status=running" | grep -q "fastapi-app"; then
     echo "✅ Application started successfully!"
     echo ""
     echo "🌐 Application is available at:"
@@ -68,14 +69,14 @@ if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" |
     echo "   • ReDoc: http://localhost:${HOST_PORT}/redoc"
     echo ""
     echo "📋 Container management:"
-    echo "   • View logs: scripts/compose/logs.sh"
-    echo "   • Stop application: scripts/compose/stop.sh"
+    echo "   • View logs: $(dirname "$0")/logs.sh"
+    echo "   • Stop application: $(dirname "$0")/stop.sh"
     echo "   • Restart application: docker compose -f ${COMPOSE_FILE} restart"
     echo ""
     echo "📊 Container status:"
-    docker compose -f "${COMPOSE_FILE}" ps
+    docker compose -f "$(realpath "${COMPOSE_FILE}")" ps
 else
     echo "❌ Failed to start application. Check logs with:"
-    echo "   scripts/compose/logs.sh"
+    echo "   $(dirname "$0")/logs.sh"
     exit 1
 fi

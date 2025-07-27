@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE="scripts/compose/docker-compose.prod.yml"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.prod.yml"
 HOST_PORT="${1:-80}"
 
 echo "🚀 Deploying FastAPI application with Docker Compose (Production)"
@@ -41,7 +41,7 @@ fi
 
 # Stop any existing containers
 echo "🛑 Stopping existing production containers..."
-docker compose -f "${COMPOSE_FILE}" down > /dev/null 2>&1 || true
+docker compose -f "$(realpath "${COMPOSE_FILE}")" down > /dev/null 2>&1 || true
 
 # Deploy the application
 echo "🐳 Deploying production containers..."
@@ -49,7 +49,7 @@ if [ "$HOST_PORT" != "80" ]; then
     # Override port mapping
     sed "s/80:8000/${HOST_PORT}:8000/" "${COMPOSE_FILE}" | docker compose -f - up -d --build
 else
-    docker compose -f "${COMPOSE_FILE}" up -d --build
+    docker compose -f "$(realpath "${COMPOSE_FILE}")" up -d --build
 fi
 
 # Wait for application to start
@@ -66,7 +66,7 @@ for i in {1..10}; do
     if [ $i -eq 10 ]; then
         echo "❌ Health check failed after 10 attempts"
         echo "Container logs:"
-        docker compose -f "${COMPOSE_FILE}" logs --tail 20
+        docker compose -f "$(realpath "${COMPOSE_FILE}")" logs --tail 20
         exit 1
     fi
     echo "⏳ Attempt $i/10 - waiting for application to start..."
@@ -74,7 +74,7 @@ for i in {1..10}; do
 done
 
 # Check if container is running
-if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" | grep -q "fastapi-app"; then
+if docker compose -f "$(realpath "${COMPOSE_FILE}")" ps --services --filter "status=running" | grep -q "fastapi-app"; then
     echo ""
     echo "🎉 Production deployment successful!"
     echo ""
@@ -84,18 +84,18 @@ if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" |
     echo "   • ReDoc: http://localhost:${HOST_PORT}/redoc"
     echo ""
     echo "📋 Production container management:"
-    echo "   • View logs: scripts/compose/logs.sh prod"
-    echo "   • Stop application: scripts/compose/stop.sh prod"
+    echo "   • View logs: $(dirname "$0")/logs.sh prod"
+    echo "   • Stop application: $(dirname "$0")/stop.sh prod"
     echo "   • Restart application: docker compose -f ${COMPOSE_FILE} restart"
     echo ""
     echo "📊 Container status:"
-    docker compose -f "${COMPOSE_FILE}" ps
+    docker compose -f "$(realpath "${COMPOSE_FILE}")" ps
     echo ""
     echo "💾 Persistent storage:"
     echo "   • Volume: fastapi-downloads"
     echo "   • Network: fastapi-network"
 else
     echo "❌ Deployment failed. Check logs with:"
-    echo "   scripts/compose/logs.sh prod"
+    echo "   $(dirname "$0")/logs.sh prod"
     exit 1
 fi

@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 IMAGE_TAG="${1:-latest}"
-COMPOSE_FILE="scripts/compose/docker-compose.yml"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.yml"
 
 echo "🐳 Building Docker image using Docker Compose"
 echo "=============================================="
@@ -25,8 +25,11 @@ fi
 
 # Build the image
 echo "📦 Building Docker image with tag: ${IMAGE_TAG}..."
-cd "$(dirname "$0")/.."
-docker compose -f "${COMPOSE_FILE}" build --build-arg IMAGE_TAG="${IMAGE_TAG}"
+# Change to project root and use absolute path for compose file
+PROJECT_ROOT="$(dirname "$0")/../.."
+COMPOSE_FILE_ABS="$(dirname "$0")/docker-compose.yml"
+cd "$PROJECT_ROOT"
+docker compose -f "$COMPOSE_FILE_ABS" build --build-arg IMAGE_TAG="${IMAGE_TAG}"
 
 # Check if build was successful
 if [ $? -eq 0 ]; then
@@ -39,10 +42,10 @@ if [ $? -eq 0 ]; then
     
     echo ""
     echo "🚀 To run the application, use:"
-    echo "   scripts/compose/run.sh"
+    echo "   $(dirname "$0")/run.sh"
     echo ""
     echo "🌐 To deploy for production, use:"
-    echo "   scripts/compose/deploy.sh"
+    echo "   $(dirname "$0")/deploy.sh"
 else
     echo "❌ Docker image build failed!"
     exit 1
