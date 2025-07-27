@@ -1,0 +1,37 @@
+# CODEOWNERS file for GenAI Agent
+# This file defines who owns and must review changes to specific parts of the codebase
+# For more information about CODEOWNERS, see:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global code owner - all files require review from rjdinis-nos
+* @rjdinis-nos
+
+# Backend application code
+/backend/ @rjdinis-nos
+
+# Tests require review to ensure quality
+/tests/ @rjdinis-nos
+
+# Scripts and automation
+/scripts/ @rjdinis-nos
+
+# GitHub Actions workflows - critical for CI/CD security
+/.github/workflows/ @rjdinis-nos
+
+# Security-related files require careful review
+/.github/SECURITY.md @rjdinis-nos
+/.github/dependabot.yml @rjdinis-nos
+/.github/CODEOWNERS @rjdinis-nos
+
+# Docker and containerization
+/Dockerfile @rjdinis-nos
+/docker-compose*.yml @rjdinis-nos
+
+# Configuration files
+/pyproject.toml @rjdinis-nos
+/.env.example @rjdinis-nos
+/.gitignore @rjdinis-nos
+
+# Documentation
+/README.md @rjdinis-nos
+/docs/ @rjdinis-nos
