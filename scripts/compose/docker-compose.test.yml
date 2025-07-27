@@ -1,16 +1,16 @@
 services:
   fastapi-test:
     build:
-      context: ..
+      context: ../..
       dockerfile: scripts/compose/Dockerfile.test
     container_name: fastapi-test
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../backend:/app/backend
-      - ../tests:/app/tests
-      - ../pytest.ini:/app/pytest.ini
+      - ../../backend:/app/backend
+      - ../../tests:/app/tests
+      - ../../pytest.ini:/app/pytest.ini
     command: ["uv", "run", "pytest", "-v", "--tb=short"]
     profiles:
       - test
