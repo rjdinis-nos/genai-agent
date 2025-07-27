@@ -5,7 +5,7 @@ This directory contains Docker Compose configurations and scripts for containeri
 ## 📁 Directory Structure
 
 ```
-.docker/
+scripts/compose/
 ├── docker-compose.yml          # Development environment
 ├── docker-compose.prod.yml     # Production environment
 ├── docker-compose.test.yml     # Testing environment
@@ -24,22 +24,22 @@ This directory contains Docker Compose configurations and scripts for containeri
 
 ### 1. Build the Application
 ```bash
-.docker/build.sh
+scripts/compose/build.sh
 ```
 
 ### 2. Run for Development
 ```bash
-.docker/run.sh
+scripts/compose/run.sh
 ```
 
 ### 3. Run Tests
 ```bash
-.docker/test.sh
+scripts/compose/test.sh
 ```
 
 ### 4. Deploy for Production
 ```bash
-.docker/deploy.sh
+scripts/compose/deploy.sh
 ```
 
 ## 📋 Available Scripts
@@ -49,13 +49,13 @@ Builds the Docker image using Docker Compose.
 
 **Usage:**
 ```bash
-.docker/build.sh [IMAGE_TAG]
+scripts/compose/build.sh [IMAGE_TAG]
 ```
 
 **Examples:**
 ```bash
-.docker/build.sh                # Build with 'latest' tag
-.docker/build.sh v1.0.0         # Build with custom tag
+scripts/compose/build.sh                # Build with 'latest' tag
+scripts/compose/build.sh v1.0.0         # Build with custom tag
 ```
 
 ### `run.sh`
@@ -63,13 +63,13 @@ Runs the application in development mode with hot-reloading and volume mounting.
 
 **Usage:**
 ```bash
-.docker/run.sh [PORT]
+scripts/compose/run.sh [PORT]
 ```
 
 **Examples:**
 ```bash
-.docker/run.sh                  # Run on default port 8000
-.docker/run.sh 3000             # Run on custom port 3000
+scripts/compose/run.sh                  # Run on default port 8000
+scripts/compose/run.sh 3000             # Run on custom port 3000
 ```
 
 **Features:**
@@ -83,13 +83,13 @@ Deploys the application for production with optimized settings.
 
 **Usage:**
 ```bash
-.docker/deploy.sh [PORT]
+scripts/compose/deploy.sh [PORT]
 ```
 
 **Examples:**
 ```bash
-.docker/deploy.sh               # Deploy on port 80
-.docker/deploy.sh 8080          # Deploy on port 8080
+scripts/compose/deploy.sh               # Deploy on port 80
+scripts/compose/deploy.sh 8080          # Deploy on port 8080
 ```
 
 **Features:**
@@ -104,7 +104,7 @@ Runs the complete test suite inside a Docker container.
 
 **Usage:**
 ```bash
-.docker/test.sh
+scripts/compose/test.sh
 ```
 
 **Features:**
@@ -118,7 +118,7 @@ Views and follows container logs with various options.
 
 **Usage:**
 ```bash
-.docker/logs.sh [OPTIONS] [ENVIRONMENT]
+scripts/compose/logs.sh [OPTIONS] [ENVIRONMENT]
 ```
 
 **Options:**
@@ -128,10 +128,10 @@ Views and follows container logs with various options.
 
 **Examples:**
 ```bash
-.docker/logs.sh                 # Show last 50 lines of dev logs
-.docker/logs.sh -f              # Follow dev logs
-.docker/logs.sh -t 100 prod     # Show last 100 lines of prod logs
-.docker/logs.sh --follow prod   # Follow prod logs
+scripts/compose/logs.sh                 # Show last 50 lines of dev logs
+scripts/compose/logs.sh -f              # Follow dev logs
+scripts/compose/logs.sh -t 100 prod     # Show last 100 lines of prod logs
+scripts/compose/logs.sh --follow prod   # Follow prod logs
 ```
 
 ### `stop.sh`
@@ -139,14 +139,14 @@ Stops running containers for specified environment.
 
 **Usage:**
 ```bash
-.docker/stop.sh [ENVIRONMENT]
+scripts/compose/stop.sh [ENVIRONMENT]
 ```
 
 **Examples:**
 ```bash
-.docker/stop.sh                 # Stop dev containers
-.docker/stop.sh prod            # Stop prod containers
-.docker/stop.sh all             # Stop all containers
+scripts/compose/stop.sh                 # Stop dev containers
+scripts/compose/stop.sh prod            # Stop prod containers
+scripts/compose/stop.sh all             # Stop all containers
 ```
 
 ### `cleanup.sh`
@@ -154,7 +154,7 @@ Comprehensive cleanup of Docker resources with selective options.
 
 **Usage:**
 ```bash
-.docker/cleanup.sh [OPTIONS]
+scripts/compose/cleanup.sh [OPTIONS]
 ```
 
 **Options:**
@@ -167,9 +167,9 @@ Comprehensive cleanup of Docker resources with selective options.
 
 **Examples:**
 ```bash
-.docker/cleanup.sh              # Interactive cleanup of everything
-.docker/cleanup.sh --containers # Remove only containers
-.docker/cleanup.sh --all --force # Remove everything without prompts
+scripts/compose/cleanup.sh              # Interactive cleanup of everything
+scripts/compose/cleanup.sh --containers # Remove only containers
+scripts/compose/cleanup.sh --all --force # Remove everything without prompts
 ```
 
 ## 🐳 Docker Compose Files
@@ -243,27 +243,27 @@ All environments include health checks that:
 ### Development Workflow
 ```bash
 # Build and start development environment
-.docker/build.sh
-.docker/run.sh
+scripts/compose/build.sh
+scripts/compose/run.sh
 
 # View logs
-.docker/logs.sh -f
+scripts/compose/logs.sh -f
 
 # Run tests
-.docker/test.sh
+scripts/compose/test.sh
 
 # Stop when done
-.docker/stop.sh
+scripts/compose/stop.sh
 ```
 
 ### Production Deployment
 ```bash
 # Build and deploy
-.docker/build.sh
-.docker/deploy.sh
+scripts/compose/build.sh
+scripts/compose/deploy.sh
 
 # Monitor logs
-.docker/logs.sh -f prod
+scripts/compose/logs.sh -f prod
 
 # Health check
 curl http://localhost/docs
@@ -272,7 +272,7 @@ curl http://localhost/docs
 ### Testing Workflow
 ```bash
 # Run tests
-.docker/test.sh
+scripts/compose/test.sh
 
 # View test results and cleanup automatically
 ```
@@ -280,11 +280,11 @@ curl http://localhost/docs
 ### Cleanup Workflow
 ```bash
 # Clean up everything
-.docker/cleanup.sh --all
+scripts/compose/cleanup.sh --all
 
 # Or selective cleanup
-.docker/cleanup.sh --containers
-.docker/cleanup.sh --images --volumes
+scripts/compose/cleanup.sh --containers
+scripts/compose/cleanup.sh --images --volumes
 ```
 
 ## 🚨 Troubleshooting
@@ -293,20 +293,20 @@ curl http://localhost/docs
 
 1. **Port already in use**
    ```bash
-   .docker/stop.sh all
-   .docker/run.sh 3000  # Use different port
+   scripts/compose/stop.sh all
+   scripts/compose/run.sh 3000  # Use different port
    ```
 
 2. **Permission denied**
    ```bash
-   chmod +x .docker/*.sh
+   chmod +x scripts/compose/*.sh
    ```
 
 3. **Container won't start**
    ```bash
-   .docker/logs.sh
-   .docker/cleanup.sh --containers
-   .docker/build.sh
+   scripts/compose/logs.sh
+   scripts/compose/cleanup.sh --containers
+   scripts/compose/build.sh
    ```
 
 4. **Tests failing**
@@ -315,12 +315,12 @@ curl http://localhost/docs
    uv run pytest -v
    
    # Then in container
-   .docker/test.sh
+   scripts/compose/test.sh
    ```
 
 ### Health Check Failures
 - Verify `.env` file exists with `GEMINI_API_KEY`
-- Check container logs: `.docker/logs.sh`
+- Check container logs: `scripts/compose/logs.sh`
 - Ensure no port conflicts
 - Verify Docker daemon is running
 

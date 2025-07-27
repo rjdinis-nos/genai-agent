@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 IMAGE_TAG="${1:-latest}"
-COMPOSE_FILE=".docker/docker-compose.yml"
+COMPOSE_FILE="scripts/compose/docker-compose.yml"
 
 echo "🐳 Building Docker image using Docker Compose"
 echo "=============================================="
@@ -39,10 +39,10 @@ if [ $? -eq 0 ]; then
     
     echo ""
     echo "🚀 To run the application, use:"
-    echo "   .docker/run.sh"
+    echo "   scripts/compose/run.sh"
     echo ""
     echo "🌐 To deploy for production, use:"
-    echo "   .docker/deploy.sh"
+    echo "   scripts/compose/deploy.sh"
 else
     echo "❌ Docker image build failed!"
     exit 1

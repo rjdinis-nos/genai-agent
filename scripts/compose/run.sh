@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE=".docker/docker-compose.yml"
+COMPOSE_FILE="scripts/compose/docker-compose.yml"
 HOST_PORT="${1:-8000}"
 
 echo "🚀 Running FastAPI application with Docker Compose"
@@ -68,14 +68,14 @@ if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" |
     echo "   • ReDoc: http://localhost:${HOST_PORT}/redoc"
     echo ""
     echo "📋 Container management:"
-    echo "   • View logs: .docker/logs.sh"
-    echo "   • Stop application: .docker/stop.sh"
+    echo "   • View logs: scripts/compose/logs.sh"
+    echo "   • Stop application: scripts/compose/stop.sh"
     echo "   • Restart application: docker compose -f ${COMPOSE_FILE} restart"
     echo ""
     echo "📊 Container status:"
     docker compose -f "${COMPOSE_FILE}" ps
 else
     echo "❌ Failed to start application. Check logs with:"
-    echo "   .docker/logs.sh"
+    echo "   scripts/compose/logs.sh"
     exit 1
 fi

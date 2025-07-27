@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE=".docker/docker-compose.test.yml"
+COMPOSE_FILE="scripts/compose/docker-compose.test.yml"
 
 echo "🧪 Running tests with Docker Compose"
 echo "===================================="
@@ -28,7 +28,7 @@ cd "$(dirname "$0")/.."
 # Build the main image first if it doesn't exist
 if ! docker image inspect genai-agent:latest > /dev/null 2>&1; then
     echo "📦 Main image not found. Building..."
-    .docker/build.sh
+    scripts/compose/build.sh
 fi
 
 echo "🧪 Running tests in container..."
@@ -43,8 +43,8 @@ if docker compose -f "${COMPOSE_FILE}" --profile test run --rm fastapi-test; the
     echo "🎉 Container testing completed successfully!"
     echo ""
     echo "📋 Next steps:"
-    echo "   • Deploy with: .docker/deploy.sh"
-    echo "   • Run locally: .docker/run.sh"
+    echo "   • Deploy with: scripts/compose/deploy.sh"
+    echo "   • Run locally: scripts/compose/run.sh"
 else
     echo ""
     echo "❌ Tests failed in container!"

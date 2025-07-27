@@ -6,9 +6,9 @@
 set -e  # Exit on any error
 
 # Configuration
-DEV_COMPOSE_FILE=".docker/docker-compose.yml"
-PROD_COMPOSE_FILE=".docker/docker-compose.prod.yml"
-TEST_COMPOSE_FILE=".docker/docker-compose.test.yml"
+DEV_COMPOSE_FILE="scripts/compose/docker-compose.yml"
+PROD_COMPOSE_FILE="scripts/compose/docker-compose.prod.yml"
+TEST_COMPOSE_FILE="scripts/compose/docker-compose.test.yml"
 
 # Function to show usage
 show_usage() {
@@ -181,6 +181,6 @@ echo ""
 echo "🎉 Cleanup completed!"
 echo ""
 echo "📋 To rebuild and start:"
-echo "   • Build: .docker/build.sh"
-echo "   • Run dev: .docker/run.sh"
-echo "   • Deploy prod: .docker/deploy.sh"
+echo "   • Build: scripts/compose/build.sh"
+echo "   • Run dev: scripts/compose/run.sh"
+echo "   • Deploy prod: scripts/compose/deploy.sh"

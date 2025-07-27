@@ -6,8 +6,8 @@
 set -e  # Exit on any error
 
 # Configuration
-DEV_COMPOSE_FILE=".docker/docker-compose.yml"
-PROD_COMPOSE_FILE=".docker/docker-compose.prod.yml"
+DEV_COMPOSE_FILE="scripts/compose/docker-compose.yml"
+PROD_COMPOSE_FILE="scripts/compose/docker-compose.prod.yml"
 
 # Function to show usage
 show_usage() {
@@ -73,5 +73,5 @@ esac
 echo "✅ Containers stopped successfully!"
 echo ""
 echo "📋 To start containers again:"
-echo "   • Development: .docker/run.sh"
-echo "   • Production: .docker/deploy.sh"
+echo "   • Development: scripts/compose/run.sh"
+echo "   • Production: scripts/compose/deploy.sh"

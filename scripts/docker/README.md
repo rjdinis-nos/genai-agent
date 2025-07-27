@@ -269,4 +269,4 @@ These scripts are designed to work with the GitHub Actions workflows in `.github
 - Deployment automation
 - Resource management
 
-For more advanced container orchestration, see the Docker Compose configurations in the `.docker/` directory.
+For more advanced container orchestration, see the Docker Compose configurations in the `scripts/compose/` directory.

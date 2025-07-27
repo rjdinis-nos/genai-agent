@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-COMPOSE_FILE=".docker/docker-compose.prod.yml"
+COMPOSE_FILE="scripts/compose/docker-compose.prod.yml"
 HOST_PORT="${1:-80}"
 
 echo "🚀 Deploying FastAPI application with Docker Compose (Production)"
@@ -84,8 +84,8 @@ if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" |
     echo "   • ReDoc: http://localhost:${HOST_PORT}/redoc"
     echo ""
     echo "📋 Production container management:"
-    echo "   • View logs: .docker/logs.sh prod"
-    echo "   • Stop application: .docker/stop.sh prod"
+    echo "   • View logs: scripts/compose/logs.sh prod"
+    echo "   • Stop application: scripts/compose/stop.sh prod"
     echo "   • Restart application: docker compose -f ${COMPOSE_FILE} restart"
     echo ""
     echo "📊 Container status:"
@@ -96,6 +96,6 @@ if docker compose -f "${COMPOSE_FILE}" ps --services --filter "status=running" |
     echo "   • Network: fastapi-network"
 else
     echo "❌ Deployment failed. Check logs with:"
-    echo "   .docker/logs.sh prod"
+    echo "   scripts/compose/logs.sh prod"
     exit 1
 fi

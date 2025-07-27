@@ -10,6 +10,19 @@ scripts/
 │   ├── summarize-pdf.sh   # Comprehensive PDF summarization CLI
 │   ├── summarize.sh       # Simple PDF summarization one-liner
 │   └── README.md          # CLI tools documentation
+├── compose/       # Docker Compose orchestration scripts
+│   ├── build.sh           # Build images with Docker Compose
+│   ├── run.sh             # Run development environment
+│   ├── deploy.sh          # Deploy production environment
+│   ├── test.sh            # Run tests in containers
+│   ├── logs.sh            # View container logs
+│   ├── stop.sh            # Stop containers by environment
+│   ├── cleanup.sh         # Clean up Docker Compose resources
+│   ├── docker-compose.yml # Development configuration
+│   ├── docker-compose.prod.yml # Production configuration
+│   ├── docker-compose.test.yml # Testing configuration
+│   ├── Dockerfile.test    # Test-specific Dockerfile
+│   └── README.md          # Docker Compose documentation
 ├── docker/        # Docker container management scripts
 │   ├── build.sh           # Build Docker images
 │   ├── run.sh             # Run development containers
@@ -45,7 +58,8 @@ scripts/
 ## Detailed Documentation
 
 - **[CLI Tools](cli/README.md)** - Command-line tools for interacting with GenAI Agent API
-- **[Docker Scripts](docker/README.md)** - Container management and deployment scripts
+- **[Docker Compose](compose/README.md)** - Modern container orchestration with Docker Compose
+- **[Docker Scripts](docker/README.md)** - Traditional Docker container management scripts
 
 ## Prerequisites
 
@@ -75,7 +89,24 @@ GENAI_SERVER_URL=https://your-server.com ./scripts/cli/summarize-pdf.sh paper.pd
 ./scripts/cli/summarize-pdf.sh --help
 ```
 
-### Docker Scripts Usage
+### Docker Compose Usage (Recommended)
+```bash
+# Development workflow
+./scripts/compose/build.sh
+./scripts/compose/run.sh
+./scripts/compose/test.sh
+
+# Production deployment
+./scripts/compose/build.sh v1.0.0
+./scripts/compose/deploy.sh 80
+
+# Container management
+./scripts/compose/logs.sh -f
+./scripts/compose/stop.sh
+./scripts/compose/cleanup.sh
+```
+
+### Docker Scripts Usage (Traditional)
 ```bash
 # Development workflow
 ./scripts/docker/build.sh
@@ -99,7 +130,7 @@ After starting the server, access:
 
 The scripts are designed to work together and integrate with:
 
-- **Docker Compose**: See `.docker/` directory for advanced orchestration
+- **Docker Compose**: See `scripts/compose/` directory for modern container orchestration
 - **GitHub Actions**: Automated CI/CD workflows in `.github/workflows/`
 - **Testing**: Comprehensive test suite in `tests/` directory
 
@@ -113,6 +144,7 @@ For detailed documentation on specific tools:
 
 # View specific documentation
 cat scripts/cli/README.md
+cat scripts/compose/README.md
 cat scripts/docker/README.md
 ```
 
@@ -121,9 +153,10 @@ cat scripts/docker/README.md
 When adding new scripts:
 
 1. **CLI tools** → Place in `scripts/cli/` with appropriate documentation
-2. **Docker scripts** → Place in `scripts/docker/` with proper error handling
-3. **Update documentation** → Update relevant README files
-4. **Make executable** → `chmod +x script-name.sh`
+2. **Docker Compose scripts** → Place in `scripts/compose/` with Docker Compose integration
+3. **Docker scripts** → Place in `scripts/docker/` with proper error handling
+4. **Update documentation** → Update relevant README files
+5. **Make executable** → `chmod +x script-name.sh`
 
 For more information, see the project's main README and contributing guidelines.
 
