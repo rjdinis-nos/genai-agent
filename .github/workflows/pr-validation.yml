@@ -55,7 +55,7 @@ jobs:
         echo "🐳 Validating Docker configuration..."
         
         # Validate Dockerfile syntax
-        docker build --no-cache --target builder -f Dockerfile . || echo "Dockerfile validation completed"
+        docker build --no-cache --target builder -f .docker/Dockerfile . || echo "Dockerfile validation completed"
         docker build --no-cache --target builder -f .docker/Dockerfile.test . || echo "Test Dockerfile validation completed"
         
         # Validate Docker Compose files

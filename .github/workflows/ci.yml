@@ -41,7 +41,7 @@ jobs:
         
     - name: Run tests
       run: |
-        docker compose -f .docker/docker-compose.test.yml --profile test run --rm fastapi-test
+        docker compose -f .docker/docker-compose.test.yml --profile test run --rm test
         
     - name: Cleanup test containers
       if: always()
