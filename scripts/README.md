@@ -1,164 +1,164 @@
 # Scripts Directory
 
-This directory contains shell scripts for building, running, and deploying the GenAI Agent application in Docker containers.
+This directory contains organized shell scripts and CLI tools for the GenAI Agent application.
 
-## Prerequisites
+## Directory Structure
 
-- Docker installed and running
-- `.env` file with `GEMINI_API_KEY` configured
-
-## Scripts Overview
-
-### 🔨 `build.sh`
-Builds the Docker image for the application.
-
-```bash
-./scripts/build.sh [tag]
 ```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-
-**Example:**
-```bash
-./scripts/build.sh          # Build with 'latest' tag
-./scripts/build.sh v1.0.0    # Build with 'v1.0.0' tag
+scripts/
+├── cli/           # Command-line tools for API interaction
+│   ├── summarize-pdf.sh   # Comprehensive PDF summarization CLI
+│   ├── summarize.sh       # Simple PDF summarization one-liner
+│   └── README.md          # CLI tools documentation
+├── compose/       # Docker Compose orchestration scripts
+│   ├── build.sh           # Build images with Docker Compose
+│   ├── run.sh             # Run development environment
+│   ├── deploy.sh          # Deploy production environment
+│   ├── test.sh            # Run tests in containers
+│   ├── logs.sh            # View container logs
+│   ├── stop.sh            # Stop containers by environment
+│   ├── cleanup.sh         # Clean up Docker Compose resources
+│   ├── docker-compose.yml # Development configuration
+│   ├── docker-compose.prod.yml # Production configuration
+│   ├── docker-compose.test.yml # Testing configuration
+│   ├── Dockerfile.test    # Test-specific Dockerfile
+│   └── README.md          # Docker Compose documentation
+├── docker/        # Docker container management scripts
+│   ├── build.sh           # Build Docker images
+│   ├── run.sh             # Run development containers
+│   ├── deploy.sh          # Deploy production containers
+│   ├── test.sh            # Run tests in containers
+│   ├── logs.sh            # View container logs
+│   ├── cleanup.sh         # Clean up Docker resources
+│   └── README.md          # Docker scripts documentation
+└── README.md      # This file - overview and quick start
 ```
-
-### 🚀 `run.sh`
-Runs the Docker container locally for development/testing.
-
-```bash
-./scripts/run.sh [tag] [port]
-```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-- `port` (optional): Host port to bind to (default: `8000`)
-
-**Example:**
-```bash
-./scripts/run.sh             # Run latest image on port 8000
-./scripts/run.sh latest 3000 # Run latest image on port 3000
-```
-
-**Features:**
-- Automatically stops existing development container
-- Mounts local `downloads` directory
-- Loads environment variables from `.env` file
-- Provides health check and status information
-
-### 🌐 `deploy.sh`
-Deploys the Docker container for production use.
-
-```bash
-./scripts/deploy.sh [tag] [port]
-```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-- `port` (optional): Host port to bind to (default: `80`)
-
-**Example:**
-```bash
-./scripts/deploy.sh          # Deploy latest image on port 80
-./scripts/deploy.sh v1.0.0 8080 # Deploy v1.0.0 image on port 8080
-```
-
-**Features:**
-- Creates Docker network for container isolation
-- Sets up persistent volume for downloads
-- Configures resource limits (512MB RAM, 0.5 CPU)
-- Automatic restart policy
-- Health check validation
-- Production-ready configuration
-
-### 📋 `logs.sh`
-View and follow container logs.
-
-```bash
-./scripts/logs.sh [OPTIONS] [CONTAINER_TYPE]
-```
-
-**Parameters:**
-- `CONTAINER_TYPE`: `dev` (default) or `prod`
-
-**Options:**
-- `-f, --follow`: Follow log output
-- `-t, --tail N`: Show last N lines (default: 50)
-- `-h, --help`: Show help message
-
-**Examples:**
-```bash
-./scripts/logs.sh                # Show last 50 lines of dev container
-./scripts/logs.sh -f             # Follow dev container logs
-./scripts/logs.sh -t 100 prod    # Show last 100 lines of prod container
-./scripts/logs.sh --follow prod  # Follow prod container logs
-```
-
-### 🧹 `cleanup.sh`
-Clean up Docker containers, images, and volumes.
-
-```bash
-./scripts/cleanup.sh
-```
-
-**Features:**
-- Stops and removes all application containers
-- Removes Docker images
-- Removes Docker network
-- Optionally removes persistent volume (with confirmation)
-- Cleans up dangling Docker resources
 
 ## Quick Start
 
-1. **Build the application:**
-   ```bash
-   ./scripts/build.sh
-   ```
+### For API Usage (CLI Tools)
+```bash
+# Summarize a PDF document
+./scripts/cli/summarize-pdf.sh document.pdf
 
-2. **Run for development:**
-   ```bash
-   ./scripts/run.sh
-   ```
+# Quick one-liner summarization
+./scripts/cli/summarize.sh report.pdf
+```
 
-3. **Deploy for production:**
-   ```bash
-   ./scripts/deploy.sh
-   ```
+### For Development (Docker Scripts)
+```bash
+# Build and run the application
+./scripts/docker/build.sh
+./scripts/docker/run.sh
 
-4. **View logs:**
-   ```bash
-   ./scripts/logs.sh -f
-   ```
+# Run tests
+./scripts/docker/test.sh
+```
 
-5. **Clean up when done:**
-   ```bash
-   ./scripts/cleanup.sh
-   ```
+## Detailed Documentation
+
+- **[CLI Tools](cli/README.md)** - Command-line tools for interacting with GenAI Agent API
+- **[Docker Compose](compose/README.md)** - Modern container orchestration with Docker Compose
+- **[Docker Scripts](docker/README.md)** - Traditional Docker container management scripts
+
+## Prerequisites
+
+### For CLI Tools
+- GenAI Agent server running (locally or remote)
+- `curl` command-line tool
+- `jq` for JSON parsing (optional)
+
+### For Docker Scripts
+- Docker installed and running
+- `.env` file with `GEMINI_API_KEY` configured
+
+## Common Usage Examples
+
+### CLI Tools Usage
+```bash
+# Comprehensive PDF summarization with error handling
+./scripts/cli/summarize-pdf.sh document.pdf
+
+# Quick PDF summarization
+./scripts/cli/summarize.sh report.pdf
+
+# Use with remote server
+GENAI_SERVER_URL=https://your-server.com ./scripts/cli/summarize-pdf.sh paper.pdf
+
+# Get help
+./scripts/cli/summarize-pdf.sh --help
+```
+
+### Docker Compose Usage (Recommended)
+```bash
+# Development workflow
+./scripts/compose/build.sh
+./scripts/compose/run.sh
+./scripts/compose/test.sh
+
+# Production deployment
+./scripts/compose/build.sh v1.0.0
+./scripts/compose/deploy.sh 80
+
+# Container management
+./scripts/compose/logs.sh -f
+./scripts/compose/stop.sh
+./scripts/compose/cleanup.sh
+```
+
+### Docker Scripts Usage (Traditional)
+```bash
+# Development workflow
+./scripts/docker/build.sh
+./scripts/docker/run.sh
+./scripts/docker/test.sh
+
+# Production deployment
+./scripts/docker/build.sh v1.0.0
+./scripts/docker/deploy.sh v1.0.0 80
+```
 
 ## Application URLs
 
-After running the container, the application will be available at:
+After starting the server, access:
 
-- **API**: `http://localhost:PORT`
-- **Interactive Docs**: `http://localhost:PORT/docs`
-- **ReDoc**: `http://localhost:PORT/redoc`
+- **API**: `http://localhost:8000`
+- **Interactive Docs**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
 
-## Docker Resources
+## Integration with Other Tools
 
-### Development Container
-- **Name**: `fastapi-app`
-- **Port**: `8000` (configurable)
-- **Volume**: Local `downloads` directory mounted
+The scripts are designed to work together and integrate with:
 
-### Production Container
-- **Name**: `fastapi-app-prod`
-- **Port**: `80` (configurable)
-- **Network**: `fastapi-network`
-- **Volume**: `fastapi-downloads` (persistent)
-- **Resources**: 512MB RAM, 0.5 CPU
-- **Restart**: `unless-stopped`
+- **Docker Compose**: See `scripts/compose/` directory for modern container orchestration
+- **GitHub Actions**: Automated CI/CD workflows in `.github/workflows/`
+- **Testing**: Comprehensive test suite in `tests/` directory
+
+## Getting Help
+
+For detailed documentation on specific tools:
+
+```bash
+# CLI tools help
+./scripts/cli/summarize-pdf.sh --help
+
+# View specific documentation
+cat scripts/cli/README.md
+cat scripts/compose/README.md
+cat scripts/docker/README.md
+```
+
+## Contributing
+
+When adding new scripts:
+
+1. **CLI tools** → Place in `scripts/cli/` with appropriate documentation
+2. **Docker Compose scripts** → Place in `scripts/compose/` with Docker Compose integration
+3. **Docker scripts** → Place in `scripts/docker/` with proper error handling
+4. **Update documentation** → Update relevant README files
+5. **Make executable** → `chmod +x script-name.sh`
+
+For more information, see the project's main README and contributing guidelines.
 
 ## Troubleshooting
 

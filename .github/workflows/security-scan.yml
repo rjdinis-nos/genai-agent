@@ -1,0 +1,134 @@
+name: "Security Scanning"
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM UTC
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog secret scan
+      uses: trufflesecurity/trufflehog@v3.63.2
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+
+    - name: Create issue on secret detection
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🔐 Secrets Detected in Repository',
+            body: `
+            ## Security Alert: Secrets Detected
+            
+            TruffleHog has detected potential secrets in the repository.
+            
+            **Immediate Actions Required:**
+            1. Review the scan results in the workflow logs
+            2. Rotate any exposed credentials immediately
+            3. Remove secrets from git history if necessary
+            4. Update security policies to prevent future exposure
+            
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Commit:** ${{ github.sha }}
+            
+            **View Logs:** [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `,
+            labels: ['security', 'secrets', 'critical']
+          });
+
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit semgrep
+
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-report.json || true
+
+    - name: Run Bandit security linter
+      run: |
+        bandit -r backend/ -f json -o bandit-report.json || true
+
+    - name: Run Semgrep security scan
+      run: |
+        semgrep --config=auto backend/ --json --output=semgrep-report.json || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          semgrep-report.json
+        retention-days: 30
+
+    - name: Create issue on vulnerabilities
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🛡️ Security Vulnerabilities Detected',
+            body: `
+            ## Security Vulnerability Alert
+            
+            Security scanning has detected potential vulnerabilities in dependencies or code.
+            
+            **Scans Performed:**
+            - Safety: Python dependency vulnerability check
+            - Bandit: Python code security analysis
+            - Semgrep: Static analysis security scan
+            
+            **Action Required:**
+            1. Download and review security reports from workflow artifacts
+            2. Update vulnerable dependencies
+            3. Fix identified code security issues
+            4. Re-run security scans after fixes
+            
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Artifacts:** [Security Reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `,
+            labels: ['security', 'vulnerabilities', 'dependencies']
+          });

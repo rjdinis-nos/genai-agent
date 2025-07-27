@@ -56,12 +56,12 @@ jobs:
         
         # Validate Dockerfile syntax
         docker build --dry-run -f Dockerfile .
-        docker build --dry-run -f .docker/Dockerfile.test .
+        docker build --dry-run -f scripts/compose/Dockerfile.test .
         
         # Validate Docker Compose files
-        docker compose -f .docker/docker-compose.yml config
-        docker compose -f .docker/docker-compose.prod.yml config
-        docker compose -f .docker/docker-compose.test.yml config
+        docker compose -f scripts/compose/docker-compose.yml config
+        docker compose -f scripts/compose/docker-compose.prod.yml config
+        docker compose -f scripts/compose/docker-compose.test.yml config
         
     - name: Run tests locally
       run: |
@@ -73,19 +73,19 @@ jobs:
       run: |
         echo "🔨 Testing Docker Compose build..."
         echo "GEMINI_API_KEY=test_key_for_pr" > .env
-        .docker/build.sh
+        scripts/compose/build.sh
         
     - name: Run containerized tests
       run: |
         echo "🐳 Running containerized tests..."
-        .docker/test.sh
+        scripts/compose/test.sh
         
     - name: Check for security issues
       run: |
         echo "🔒 Checking for security issues..."
         
         # Check for hardcoded secrets (basic check)
-        if grep -r "api_key\|password\|secret" --include="*.py" --include="*.yml" --include="*.yaml" backend/ .github/ .docker/ | grep -v "GEMINI_API_KEY" | grep -v "test_key"; then
+        if grep -r "api_key\|password\|secret" --include="*.py" --include="*.yml" --include="*.yaml" backend/ .github/ scripts/compose/ | grep -v "GEMINI_API_KEY" | grep -v "test_key"; then
           echo "❌ Potential hardcoded secrets found!"
           exit 1
         fi
@@ -107,9 +107,9 @@ jobs:
           ".gitignore"
           "backend/main.py"
           "tests/test_api.py"
-          ".docker/docker-compose.yml"
-          ".docker/docker-compose.prod.yml"
-          ".docker/docker-compose.test.yml"
+          "scripts/compose/docker-compose.yml"
+          "scripts/compose/docker-compose.prod.yml"
+          "scripts/compose/docker-compose.test.yml"
         )
         
         for file in "${required_files[@]}"; do

@@ -64,8 +64,8 @@ jobs:
       if: env.DEPENDENCIES_UPDATED == 'true'
       run: |
         echo "🐳 Testing Docker build with updated dependencies..."
-        .docker/build.sh
-        .docker/test.sh
+        scripts/compose/build.sh
+        scripts/compose/test.sh
         
     - name: Create Pull Request
       if: env.DEPENDENCIES_UPDATED == 'true'
@@ -139,7 +139,7 @@ jobs:
         fi
         
     - name: Scan for secrets
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@v3.63.2
       with:
         path: ./
         base: main
@@ -151,7 +151,7 @@ jobs:
         echo "🐳 Running Docker security scan..."
         
         # Build image for scanning
-        .docker/build.sh
+        scripts/compose/build.sh
         
         # Run Trivy scan
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
