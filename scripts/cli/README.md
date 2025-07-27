@@ -10,6 +10,81 @@ This directory contains command-line interface tools for interacting with the Ge
 
 ## Available CLI Tools
 
+### 🏥 `healthcheck.sh`
+Comprehensive CLI tool for performing health checks on the GenAI Agent API.
+
+```bash
+./scripts/cli/healthcheck.sh [OPTIONS]
+```
+
+**Options:**
+- `-h, --host HOST`: API host (default: localhost)
+- `-p, --port PORT`: API port (default: 8000)
+- `-s, --secure`: Use HTTPS instead of HTTP
+- `-v, --verbose`: Verbose output
+- `-j, --json`: Output raw JSON response
+- `-w, --wait SECONDS`: Wait time between retries (default: 5)
+- `-r, --retries COUNT`: Number of retries (default: 3)
+- `--timeout SECONDS`: Request timeout (default: 10)
+- `--help`: Show help message
+
+**Examples:**
+```bash
+# Basic health check
+./scripts/cli/healthcheck.sh
+
+# Verbose health check with system details
+./scripts/cli/healthcheck.sh -v
+
+# Remote HTTPS API health check
+./scripts/cli/healthcheck.sh -h api.example.com -p 443 -s
+
+# JSON output for automation
+./scripts/cli/healthcheck.sh -j
+
+# Custom retries and timeout
+./scripts/cli/healthcheck.sh -r 5 -w 10 --timeout 30
+```
+
+**Features:**
+- ✅ Comprehensive API health monitoring
+- ✅ System resource monitoring (memory, disk usage)
+- ✅ Dependency status checking (downloads directory, Gemini API)
+- ✅ Endpoint availability verification
+- ✅ Retry logic with configurable attempts
+- ✅ Colored output with status indicators
+- ✅ JSON output for automation/scripting
+- ✅ Verbose mode for detailed diagnostics
+- ✅ Timeout and connectivity handling
+
+### 🏥 `health.sh`
+Simple one-liner CLI tool for quick health checks.
+
+```bash
+./scripts/cli/health.sh [host] [port]
+```
+
+**Parameters:**
+- `host` (optional): API host (default: localhost or $GENAI_HOST)
+- `port` (optional): API port (default: 8000 or $GENAI_PORT)
+
+**Environment Variables:**
+- `GENAI_HOST`: Override default host
+- `GENAI_PORT`: Override default port
+- `GENAI_PROTOCOL`: Override default protocol (http/https)
+
+**Examples:**
+```bash
+# Basic health check
+./scripts/cli/health.sh
+
+# Custom host and port
+./scripts/cli/health.sh api.example.com 8080
+
+# Using environment variables
+GENAI_HOST=api.example.com GENAI_PORT=443 GENAI_PROTOCOL=https ./scripts/cli/health.sh
+```
+
 ### 📥 `download-file.sh`
 Comprehensive CLI tool for downloading files using the GenAI Agent /download endpoint.
 

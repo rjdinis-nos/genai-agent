@@ -12,10 +12,97 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-app = FastAPI(title="File Downloader & PDF Summarizer API")
+app = FastAPI(
+    title="GenAI Agent API",
+    description="FastAPI application for file downloads and PDF summarization using Google Gemini AI",
+    version="1.0.0"
+)
 
 download_dir = Path("downloads")
 download_dir.mkdir(exist_ok=True)
+
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint to verify API status and dependencies.
+    
+    Returns:
+        Health status information including API status, dependencies, and system info
+    """
+    import time
+    import sys
+    import psutil
+    from datetime import datetime
+    
+    try:
+        # Check if downloads directory is accessible
+        downloads_accessible = download_dir.exists() and download_dir.is_dir()
+        
+        # Check Google Gemini API configuration
+        gemini_configured = bool(os.getenv("GOOGLE_API_KEY"))
+        
+        # Get system information
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        
+        health_data = {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "version": "1.0.0",
+            "uptime": time.time(),
+            "system": {
+                "python_version": sys.version.split()[0],
+                "memory_usage": {
+                    "total": memory.total,
+                    "available": memory.available,
+                    "percent": memory.percent
+                },
+                "disk_usage": {
+                    "total": disk.total,
+                    "free": disk.free,
+                    "percent": (disk.used / disk.total) * 100
+                }
+            },
+            "dependencies": {
+                "downloads_directory": downloads_accessible,
+                "google_gemini_api": gemini_configured
+            },
+            "endpoints": {
+                "download": "/download",
+                "summarize": "/summarize",
+                "health": "/health",
+                "docs": "/docs"
+            }
+        }
+        
+        return health_data
+        
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "error": str(e)
+        }
+
+@app.get("/")
+async def root():
+    """
+    Root endpoint with API information.
+    
+    Returns:
+        Basic API information and available endpoints
+    """
+    return {
+        "message": "Welcome to GenAI Agent API",
+        "description": "FastAPI application for file downloads and PDF summarization",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/health - Health check endpoint",
+            "download": "/download - Download files from URLs",
+            "summarize": "/summarize - Summarize PDF documents",
+            "docs": "/docs - API documentation"
+        }
+    }
 
 @app.post("/download")
 async def download_file(url: str):
