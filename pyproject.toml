@@ -16,6 +16,7 @@ dependencies = [
     "google-generativeai==0.8.5",
     "python-dotenv==1.1.1",
     "psutil>=5.9.0",
+    "pytest-benchmark>=5.1.0",
 ]
 license = {text = "MIT"}
 
