@@ -1,18 +1,17 @@
 services:
-  fastapi-app:
+  app:
     build:
-      context: ../..
-      dockerfile: Dockerfile
-    container_name: fastapi-app-prod
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: ${PROJECT_NAME:-genai-agent}-app-prod
     ports:
-      - "80:8000"
+      - "${HOST_PORT:-80}:8000"
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    env_file:
-      - ../../.env
+    # env_file removed - passed via --env-file parameter to docker compose
     volumes:
-      - fastapi-downloads:/app/downloads
+      - downloads:/app/downloads
     restart: unless-stopped
     deploy:
       resources:
@@ -35,9 +34,9 @@ services:
         max-file: "3"
 
 volumes:
-  fastapi-downloads:
+  downloads:
     driver: local
 
 networks:
   default:
-    name: fastapi-network
+    name: ${PROJECT_NAME:-genai-agent}-network

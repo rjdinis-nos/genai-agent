@@ -6,9 +6,9 @@
 set -e  # Exit on any error
 
 # Configuration
-SCRIPT_DIR="$(dirname "$0")"
-DEV_COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
-PROD_COMPOSE_FILE="$SCRIPT_DIR/docker-compose.prod.yml"
+SCRIPT_DIR="$(realpath "$(dirname "$0")")"
+DEV_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.dev.yml"
+PROD_COMPOSE_FILE="$SCRIPT_DIR/../.docker/docker-compose.prod.yml"
 
 # Function to show usage
 show_usage() {
@@ -86,20 +86,20 @@ if ! docker compose version > /dev/null 2>&1; then
 fi
 
 # Navigate to project root
-cd "$(dirname "$0")/.."
+cd "$SCRIPT_DIR/.."
 
 # Check if containers exist
-if ! docker compose -f "$(realpath "${COMPOSE_FILE}")" ps --services | grep -q "${SERVICE_NAME}"; then
+if ! docker compose -f "$COMPOSE_FILE" ps --services | grep -q "${SERVICE_NAME}"; then
     echo "❌ Error: No containers found for ${ENVIRONMENT} environment."
     echo ""
     echo "Available services:"
-    docker compose -f "$(realpath "${COMPOSE_FILE}")" ps --services || echo "No services found"
+    docker compose -f "$COMPOSE_FILE" ps --services || echo "No services found"
     exit 1
 fi
 
 # Show container status
 echo "Container status:"
-docker compose -f "$(realpath "${COMPOSE_FILE}")" ps
+docker compose -f "$COMPOSE_FILE" ps
 echo ""
 
 # Build docker compose logs command

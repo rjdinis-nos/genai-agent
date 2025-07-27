@@ -1,272 +1,340 @@
-# Docker Scripts
+# Docker Compose Setup for GenAI Agent
 
-This directory contains shell scripts for building, running, and deploying the GenAI Agent application in Docker containers.
+This directory contains Docker Compose configurations and scripts for containerizing and managing the FastAPI application using modern Docker Compose workflows.
 
-## Prerequisites
+## 📁 Directory Structure
 
-- Docker installed and running
-- `.env` file with `GEMINI_API_KEY` configured
-
-## Available Scripts
-
-### 🔨 `build.sh`
-Builds the Docker image for the application.
-
-```bash
-./scripts/docker/build.sh [tag]
+```
+scripts/docker/
+├── docker-compose.dev.yml      # Development environment (moved to .docker/)
+├── docker-compose.prod.yml     # Production environment (moved to .docker/)
+├── docker-compose.test.yml     # Testing environment (moved to .docker/)
+├── Dockerfile.test             # Test-specific Dockerfile
+├── build.sh                    # Build Docker images
+├── run.sh                      # Run development environment
+├── deploy.sh                   # Deploy production environment
+├── test.sh                     # Run tests in container
+├── logs.sh                     # View container logs
+├── stop.sh                     # Stop containers
+├── cleanup.sh                  # Clean up Docker resources
+└── README.md                   # This file
 ```
 
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
+## 🚀 Quick Start
+
+### 1. Build the Application
+```bash
+scripts/docker/build.sh
+```
+
+### 2. Run for Development
+```bash
+scripts/docker/run.sh
+```
+
+### 3. Run Tests
+```bash
+scripts/docker/test.sh
+```
+
+### 4. Deploy for Production
+```bash
+scripts/docker/deploy.sh
+```
+
+## 📋 Available Scripts
+
+### `build.sh`
+Builds the Docker image using Docker Compose.
+
+**Usage:**
+```bash
+scripts/docker/build.sh [IMAGE_TAG]
+```
 
 **Examples:**
 ```bash
-./scripts/docker/build.sh          # Build with 'latest' tag
-./scripts/docker/build.sh v1.0.0   # Build with 'v1.0.0' tag
+scripts/docker/build.sh                # Build with 'latest' tag
+scripts/docker/build.sh v1.0.0         # Build with custom tag
 ```
 
-**Features:**
-- Multi-stage Docker build for optimized image size
-- Automatic cleanup of intermediate containers
-- Build progress indicators
-- Error handling and validation
+### `run.sh`
+Runs the application in development mode with hot-reloading and volume mounting.
 
-### 🚀 `run.sh`
-Runs the Docker container locally for development/testing.
-
+**Usage:**
 ```bash
-./scripts/docker/run.sh [tag] [port]
+scripts/docker/run.sh [PORT]
 ```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-- `port` (optional): Host port to bind to (default: `8000`)
 
 **Examples:**
 ```bash
-./scripts/docker/run.sh             # Run latest image on port 8000
-./scripts/docker/run.sh latest 3000 # Run latest image on port 3000
+scripts/docker/run.sh                  # Run on default port 8000
+scripts/docker/run.sh 3000             # Run on custom port 3000
 ```
 
 **Features:**
-- Automatically stops existing development container
-- Mounts local `downloads` directory
-- Loads environment variables from `.env` file
-- Provides health check and status information
+- Volume mounting for live code changes
+- Environment variable loading from `.env`
+- Health checks
+- Automatic container restart
 
-### 🌐 `deploy.sh`
-Deploys the Docker container for production use.
+### `deploy.sh`
+Deploys the application for production with optimized settings.
 
+**Usage:**
 ```bash
-./scripts/docker/deploy.sh [tag] [port]
+scripts/docker/deploy.sh [PORT]
 ```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-- `port` (optional): Host port to bind to (default: `8000`)
 
 **Examples:**
 ```bash
-./scripts/docker/deploy.sh          # Deploy latest image on port 8000
-./scripts/docker/deploy.sh v1.0.0   # Deploy specific version
+scripts/docker/deploy.sh               # Deploy on port 80
+scripts/docker/deploy.sh 8080          # Deploy on port 8080
 ```
 
 **Features:**
-- Production-optimized container settings
+- Resource limits and reservations
+- Persistent volume storage
+- Production logging configuration
+- Health checks with retry logic
 - Automatic restart policies
-- Resource limits and constraints
-- Health monitoring
-- Persistent volume management
 
-### 🧪 `test.sh`
-Runs the test suite inside a Docker container.
+### `test.sh`
+Runs the complete test suite inside a Docker container.
 
+**Usage:**
 ```bash
-./scripts/docker/test.sh [tag]
-```
-
-**Parameters:**
-- `tag` (optional): Docker image tag (default: `latest`)
-
-**Examples:**
-```bash
-./scripts/docker/test.sh        # Run tests with latest image
-./scripts/docker/test.sh v1.0.0 # Run tests with specific version
+scripts/docker/test.sh
 ```
 
 **Features:**
 - Isolated test environment
-- Comprehensive test coverage reporting
-- Automatic test result formatting
-- Exit code propagation for CI/CD
+- Automatic cleanup after tests
+- Comprehensive test output
+- Exit codes for CI/CD integration
 
-### 📋 `logs.sh`
-Views and follows container logs.
+### `logs.sh`
+Views and follows container logs with various options.
 
+**Usage:**
 ```bash
-./scripts/docker/logs.sh [container_name] [options]
-```
-
-**Parameters:**
-- `container_name` (optional): Container name (default: `genai-agent-dev`)
-- `options` (optional): Additional docker logs options
-
-**Examples:**
-```bash
-./scripts/docker/logs.sh                    # View dev container logs
-./scripts/docker/logs.sh genai-agent-prod   # View production logs
-./scripts/docker/logs.sh genai-agent-dev -f # Follow logs in real-time
-```
-
-**Features:**
-- Real-time log streaming
-- Colored output for better readability
-- Timestamp formatting
-- Container status checking
-
-### 🧹 `cleanup.sh`
-Cleans up Docker resources (containers, images, volumes).
-
-```bash
-./scripts/docker/cleanup.sh [options]
+scripts/docker/logs.sh [OPTIONS] [ENVIRONMENT]
 ```
 
 **Options:**
-- `--containers`: Remove only containers
-- `--images`: Remove only images
-- `--volumes`: Remove only volumes
-- `--all`: Remove everything (default)
+- `-f, --follow`: Follow log output
+- `-t, --tail N`: Show last N lines (default: 50)
+- `-h, --help`: Show help message
 
 **Examples:**
 ```bash
-./scripts/docker/cleanup.sh              # Clean up everything
-./scripts/docker/cleanup.sh --containers # Remove only containers
-./scripts/docker/cleanup.sh --images     # Remove only images
+scripts/docker/logs.sh                 # Show last 50 lines of dev logs
+scripts/docker/logs.sh -f              # Follow dev logs
+scripts/docker/logs.sh -t 100 prod     # Show last 100 lines of prod logs
+scripts/docker/logs.sh --follow prod   # Follow prod logs
 ```
 
-**Features:**
-- Safe cleanup with confirmation prompts
-- Selective resource removal
-- Disk space reporting
-- Preservation of important data
+### `stop.sh`
+Stops running containers for specified environment.
 
-## Usage Workflows
+**Usage:**
+```bash
+scripts/docker/stop.sh [ENVIRONMENT]
+```
+
+**Examples:**
+```bash
+scripts/docker/stop.sh                 # Stop dev containers
+scripts/docker/stop.sh prod            # Stop prod containers
+scripts/docker/stop.sh all             # Stop all containers
+```
+
+### `cleanup.sh`
+Comprehensive cleanup of Docker resources with selective options.
+
+**Usage:**
+```bash
+scripts/docker/cleanup.sh [OPTIONS]
+```
+
+**Options:**
+- `--containers`: Remove containers only
+- `--images`: Remove images only
+- `--volumes`: Remove volumes only
+- `--networks`: Remove networks only
+- `--all`: Remove everything (default)
+- `--force`: Skip confirmation prompts
+
+**Examples:**
+```bash
+scripts/docker/cleanup.sh              # Interactive cleanup of everything
+scripts/docker/cleanup.sh --containers # Remove only containers
+scripts/docker/cleanup.sh --all --force # Remove everything without prompts
+```
+
+## 🐳 Docker Compose Files
+
+### `docker-compose-dev.yml` (Development)
+- **Port**: 8000
+- **Features**: Volume mounting, environment variables, health checks
+- **Use case**: Local development with hot-reloading
+
+### `docker-compose.prod.yml` (Production)
+- **Port**: 80
+- **Features**: Resource limits, persistent volumes, logging, restart policies
+- **Use case**: Production deployment
+
+### `docker-compose.test.yml` (Testing)
+- **Features**: Test-specific configuration, isolated environment
+- **Use case**: Running automated tests
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env` file in the project root with:
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+### Port Configuration
+- **Development**: Default port 8000 (configurable)
+- **Production**: Default port 80 (configurable)
+- **Testing**: No external port exposure
+
+### Volume Mounts
+- **Development**: Source code mounted for live changes
+- **Production**: Persistent volume for downloads
+- **Testing**: Test files mounted read-only
+
+## 🌐 Network Configuration
+
+All containers use the `fastapi-network` network for internal communication.
+
+## 💾 Persistent Storage
+
+### Development
+- Local `downloads/` directory mounted as volume
+
+### Production
+- Named volume `fastapi-downloads` for persistent storage
+
+## 🏥 Health Checks
+
+All environments include health checks that:
+- Test the `/docs` endpoint
+- Run every 30 seconds
+- Timeout after 10 seconds
+- Retry 3 times before marking as unhealthy
+- Wait 40 seconds before starting checks
+
+## 📊 Resource Management
+
+### Production Limits
+- **Memory**: 512MB limit, 256MB reservation
+- **CPU**: 0.5 CPU limit, 0.25 CPU reservation
+
+### Logging
+- **Driver**: JSON file
+- **Max size**: 10MB per file
+- **Max files**: 3 files retained
+
+## 🔄 Workflow Examples
 
 ### Development Workflow
 ```bash
-# 1. Build the application
-./scripts/docker/build.sh
+# Build and start development environment
+scripts/docker/build.sh
+scripts/docker/run.sh
 
-# 2. Run for development
-./scripts/docker/run.sh
+# View logs
+scripts/docker/logs.sh -f
 
-# 3. Run tests
-./scripts/docker/test.sh
+# Run tests
+scripts/docker/test.sh
 
-# 4. View logs
-./scripts/docker/logs.sh -f
+# Stop when done
+scripts/docker/stop.sh
 ```
 
 ### Production Deployment
 ```bash
-# 1. Build production image
-./scripts/docker/build.sh v1.0.0
+# Build and deploy
+scripts/docker/build.sh
+scripts/docker/deploy.sh
 
-# 2. Deploy to production
-./scripts/docker/deploy.sh v1.0.0 80
+# Monitor logs
+scripts/docker/logs.sh -f prod
 
-# 3. Monitor logs
-./scripts/docker/logs.sh genai-agent-prod -f
+# Health check
+curl http://localhost/docs
 ```
 
-### Maintenance
+### Testing Workflow
 ```bash
-# View container status
-docker ps -a
+# Run tests
+scripts/docker/test.sh
 
-# Clean up old resources
-./scripts/docker/cleanup.sh --containers
-
-# Full cleanup (be careful!)
-./scripts/docker/cleanup.sh --all
+# View test results and cleanup automatically
 ```
 
-## Environment Configuration
-
-Create a `.env` file in the project root:
-
+### Cleanup Workflow
 ```bash
-# Required
-GEMINI_API_KEY=your_google_gemini_api_key_here
+# Clean up everything
+scripts/docker/cleanup.sh --all
 
-# Optional
-GENAI_PORT=8000
-GENAI_HOST=0.0.0.0
-GENAI_WORKERS=1
+# Or selective cleanup
+scripts/docker/cleanup.sh --containers
+scripts/docker/cleanup.sh --images --volumes
 ```
 
-## Container Names
-
-The scripts use these container naming conventions:
-- Development: `genai-agent-dev`
-- Production: `genai-agent-prod`
-- Testing: `genai-agent-test`
-
-## Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-**Port already in use:**
-```bash
-# Check what's using the port
-sudo lsof -i :8000
+1. **Port already in use**
+   ```bash
+   scripts/docker/stop.sh all
+   scripts/docker/run.sh 3000  # Use different port
+   ```
 
-# Use a different port
-./scripts/docker/run.sh latest 3000
-```
+2. **Permission denied**
+   ```bash
+   chmod +x scripts/docker/*.sh
+   ```
 
-**Permission denied:**
-```bash
-# Make scripts executable
-chmod +x scripts/docker/*.sh
+3. **Container won't start**
+   ```bash
+   scripts/docker/logs.sh
+   scripts/docker/cleanup.sh --containers
+   scripts/docker/build.sh
+   ```
 
-# Check Docker permissions
-sudo usermod -aG docker $USER
-```
+4. **Tests failing**
+   ```bash
+   # Run tests locally first
+   uv run pytest -v
+   
+   # Then in container
+   scripts/docker/test.sh
+   ```
 
-**Container won't start:**
-```bash
-# Check logs
-./scripts/docker/logs.sh
+### Health Check Failures
+- Verify `.env` file exists with `GEMINI_API_KEY`
+- Check container logs: `scripts/docker/logs.sh`
+- Ensure no port conflicts
+- Verify Docker daemon is running
 
-# Verify environment file
-cat .env
+## 📚 Additional Resources
 
-# Check Docker daemon
-sudo systemctl status docker
-```
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Project Main README](../README.md)
 
-### Performance Optimization
+## 🤝 Contributing
 
-**Build optimization:**
-```bash
-# Use BuildKit for faster builds
-DOCKER_BUILDKIT=1 ./scripts/docker/build.sh
-```
-
-**Resource limits:**
-```bash
-# Monitor resource usage
-docker stats genai-agent-dev
-```
-
-## Integration with CI/CD
-
-These scripts are designed to work with the GitHub Actions workflows in `.github/workflows/`. They provide the foundation for:
-
-- Automated testing
-- Container builds
-- Deployment automation
-- Resource management
-
-For more advanced container orchestration, see the Docker Compose configurations in the `scripts/compose/` directory.
+When adding new Docker Compose configurations:
+1. Update the appropriate compose file
+2. Add corresponding script if needed
+3. Update this README
+4. Test all environments
+5. Update the main project documentation

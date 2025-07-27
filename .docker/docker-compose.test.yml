@@ -1,0 +1,20 @@
+services:
+  test:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.test
+    container_name: ${PROJECT_NAME:-genai-agent}-test
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../backend:/app/backend
+      - ../tests:/app/tests
+      - ../pytest.ini:/app/pytest.ini
+    command: ["uv", "run", "pytest", "-v", "--tb=short"]
+    profiles:
+      - test
+
+networks:
+  default:
+    name: ${PROJECT_NAME:-genai-agent}-network

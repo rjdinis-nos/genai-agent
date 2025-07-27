@@ -14,7 +14,7 @@ This directory contains command-line interface tools for interacting with the Ge
 Comprehensive CLI tool for performing health checks on the GenAI Agent API.
 
 ```bash
-./scripts/cli/healthcheck.sh [OPTIONS]
+./scripts/api/healthcheck.sh [OPTIONS]
 ```
 
 **Options:**
@@ -31,19 +31,19 @@ Comprehensive CLI tool for performing health checks on the GenAI Agent API.
 **Examples:**
 ```bash
 # Basic health check
-./scripts/cli/healthcheck.sh
+./scripts/api/healthcheck.sh
 
 # Verbose health check with system details
-./scripts/cli/healthcheck.sh -v
+./scripts/api/healthcheck.sh -v
 
 # Remote HTTPS API health check
-./scripts/cli/healthcheck.sh -h api.example.com -p 443 -s
+./scripts/api/healthcheck.sh -h api.example.com -p 443 -s
 
 # JSON output for automation
-./scripts/cli/healthcheck.sh -j
+./scripts/api/healthcheck.sh -j
 
 # Custom retries and timeout
-./scripts/cli/healthcheck.sh -r 5 -w 10 --timeout 30
+./scripts/api/healthcheck.sh -r 5 -w 10 --timeout 30
 ```
 
 **Features:**
@@ -61,7 +61,7 @@ Comprehensive CLI tool for performing health checks on the GenAI Agent API.
 Simple one-liner CLI tool for quick health checks.
 
 ```bash
-./scripts/cli/health.sh [host] [port]
+./scripts/api/health.sh [host] [port]
 ```
 
 **Parameters:**
@@ -76,20 +76,20 @@ Simple one-liner CLI tool for quick health checks.
 **Examples:**
 ```bash
 # Basic health check
-./scripts/cli/health.sh
+./scripts/api/health.sh
 
 # Custom host and port
-./scripts/cli/health.sh api.example.com 8080
+./scripts/api/health.sh api.example.com 8080
 
 # Using environment variables
-GENAI_HOST=api.example.com GENAI_PORT=443 GENAI_PROTOCOL=https ./scripts/cli/health.sh
+GENAI_HOST=api.example.com GENAI_PORT=443 GENAI_PROTOCOL=https ./scripts/api/health.sh
 ```
 
 ### 📥 `download-file.sh`
 Comprehensive CLI tool for downloading files using the GenAI Agent /download endpoint.
 
 ```bash
-./scripts/cli/download-file.sh [OPTIONS] <URL>
+./scripts/api/download-file.sh [OPTIONS] <URL>
 ```
 
 **Parameters:**
@@ -107,16 +107,16 @@ Comprehensive CLI tool for downloading files using the GenAI Agent /download end
 **Examples:**
 ```bash
 # Basic usage
-./scripts/cli/download-file.sh https://example.com/document.pdf
+./scripts/api/download-file.sh https://example.com/document.pdf
 
 # With custom output filename
-./scripts/cli/download-file.sh -o my-file.pdf https://example.com/document.pdf
+./scripts/api/download-file.sh -o my-file.pdf https://example.com/document.pdf
 
 # With custom server and HTTPS
-./scripts/cli/download-file.sh -h api.example.com -p 443 -s https://example.com/document.pdf
+./scripts/api/download-file.sh -h api.example.com -p 443 -s https://example.com/document.pdf
 
 # With output directory and verbose mode
-./scripts/cli/download-file.sh -d downloads/ -v https://example.com/document.pdf
+./scripts/api/download-file.sh -d downloads/ -v https://example.com/document.pdf
 ```
 
 **Features:**
@@ -134,7 +134,7 @@ Comprehensive CLI tool for downloading files using the GenAI Agent /download end
 Simple one-liner CLI tool for quick file downloads.
 
 ```bash
-./scripts/cli/download.sh <URL> [output_file]
+./scripts/api/download.sh <URL> [output_file]
 ```
 
 **Parameters:**
@@ -148,20 +148,20 @@ Simple one-liner CLI tool for quick file downloads.
 **Examples:**
 ```bash
 # Basic usage
-./scripts/cli/download.sh https://example.com/document.pdf
+./scripts/api/download.sh https://example.com/document.pdf
 
 # With custom output filename
-./scripts/cli/download.sh https://example.com/document.pdf my-document.pdf
+./scripts/api/download.sh https://example.com/document.pdf my-document.pdf
 
 # With custom server
-GENAI_HOST=api.example.com GENAI_PORT=8080 ./scripts/cli/download.sh https://example.com/file.pdf
+GENAI_HOST=api.example.com GENAI_PORT=8080 ./scripts/api/download.sh https://example.com/file.pdf
 ```
 
 ### 📄 `summarize-pdf.sh`
 Comprehensive CLI tool for PDF summarization with error handling and status feedback.
 
 ```bash
-./scripts/cli/summarize-pdf.sh <pdf_file_path> [server_url]
+./scripts/api/summarize-pdf.sh <pdf_file_path> [server_url]
 ```
 
 **Parameters:**
@@ -175,16 +175,16 @@ Comprehensive CLI tool for PDF summarization with error handling and status feed
 **Examples:**
 ```bash
 # Basic usage
-./scripts/cli/summarize-pdf.sh document.pdf
+./scripts/api/summarize-pdf.sh document.pdf
 
 # With custom server URL
-./scripts/cli/summarize-pdf.sh /path/to/report.pdf http://localhost:8000
+./scripts/api/summarize-pdf.sh /path/to/report.pdf http://localhost:8000
 
 # Using environment variables
-GENAI_SERVER_URL=https://genai-agent.example.com ./scripts/cli/summarize-pdf.sh paper.pdf
+GENAI_SERVER_URL=https://genai-agent.example.com ./scripts/api/summarize-pdf.sh paper.pdf
 
 # With custom timeout
-GENAI_TIMEOUT=120 ./scripts/cli/summarize-pdf.sh large-document.pdf
+GENAI_TIMEOUT=120 ./scripts/api/summarize-pdf.sh large-document.pdf
 ```
 
 **Features:**
@@ -205,7 +205,7 @@ GENAI_TIMEOUT=120 ./scripts/cli/summarize-pdf.sh large-document.pdf
 Simple one-liner for quick PDF summarization.
 
 ```bash
-./scripts/cli/summarize.sh <pdf_file_path> [server_url]
+./scripts/api/summarize.sh <pdf_file_path> [server_url]
 ```
 
 **Parameters:**
@@ -215,13 +215,13 @@ Simple one-liner for quick PDF summarization.
 **Examples:**
 ```bash
 # Basic usage
-./scripts/cli/summarize.sh document.pdf
+./scripts/api/summarize.sh document.pdf
 
 # With custom server
-./scripts/cli/summarize.sh report.pdf http://localhost:3000
+./scripts/api/summarize.sh report.pdf http://localhost:3000
 
 # Pipe output to file
-./scripts/cli/summarize.sh document.pdf > summary.txt
+./scripts/api/summarize.sh document.pdf > summary.txt
 ```
 
 **Features:**
@@ -235,10 +235,10 @@ Simple one-liner for quick PDF summarization.
 ### Basic PDF Summarization
 ```bash
 # Use the comprehensive tool for better error handling
-./scripts/cli/summarize-pdf.sh my-document.pdf
+./scripts/api/summarize-pdf.sh my-document.pdf
 
 # Use the simple tool for quick results
-./scripts/cli/summarize.sh my-document.pdf
+./scripts/api/summarize.sh my-document.pdf
 ```
 
 ### Batch Processing
@@ -246,7 +246,7 @@ Simple one-liner for quick PDF summarization.
 # Process multiple PDFs
 for pdf in *.pdf; do
     echo "Summarizing: $pdf"
-    ./scripts/cli/summarize-pdf.sh "$pdf" > "${pdf%.pdf}-summary.txt"
+    ./scripts/api/summarize-pdf.sh "$pdf" > "${pdf%.pdf}-summary.txt"
 done
 ```
 
@@ -256,16 +256,16 @@ done
 export GENAI_SERVER_URL="https://your-genai-agent.com"
 
 # Now use tools normally
-./scripts/cli/summarize-pdf.sh document.pdf
+./scripts/api/summarize-pdf.sh document.pdf
 ```
 
 ### Integration with Other Tools
 ```bash
 # Combine with find to process all PDFs in a directory
-find /path/to/pdfs -name "*.pdf" -exec ./scripts/cli/summarize.sh {} \;
+find /path/to/pdfs -name "*.pdf" -exec ./scripts/api/summarize.sh {} \;
 
 # Use with xargs for parallel processing
-find . -name "*.pdf" | xargs -I {} -P 4 ./scripts/cli/summarize.sh {}
+find . -name "*.pdf" | xargs -I {} -P 4 ./scripts/api/summarize.sh {}
 ```
 
 ## Error Handling
@@ -300,7 +300,7 @@ uv run uvicorn backend.main:app --reload
 curl -s http://localhost:8000/docs
 
 # Test with verbose output
-GENAI_TIMEOUT=10 ./scripts/cli/summarize-pdf.sh document.pdf
+GENAI_TIMEOUT=10 ./scripts/api/summarize-pdf.sh document.pdf
 ```
 
 ### File Issues
