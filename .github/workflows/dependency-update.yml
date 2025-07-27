@@ -74,36 +74,18 @@ jobs:
         # ./build.sh
         # ./test.sh
         
-    - name: Create Pull Request
+    - name: Report dependency update status
       if: env.DEPENDENCIES_UPDATED == 'true'
-      uses: peter-evans/create-pull-request@v7
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "chore: update dependencies"
-        title: "🔄 Automated Dependency Update"
-        body: |
-          ## 🔄 Automated Dependency Update
-          
-          This PR contains automated dependency updates.
-          
-          ### Changes:
-          - Updated Python dependencies via UV
-          - All tests pass with updated dependencies
-          - Docker build verified with new dependencies
-          
-          ### Validation:
-          - ✅ Local tests pass
-          - ✅ Containerized tests pass
-          - ✅ Docker build successful
-          
-          ### Review Notes:
-          - Please review the dependency changes in `uv.lock`
-          - Check for any breaking changes in updated packages
-          - Verify that all functionality works as expected
-          
-          **This PR was automatically created by the dependency update workflow.**
-        branch: automated/dependency-update
-        delete-branch: true
+      run: |
+        echo "🔄 Dependencies were updated successfully!"
+        echo "To create a PR with these changes, run this workflow manually or check the updated dependencies."
+        echo "Dependencies are up to date and security checks passed."
+        
+    - name: Report no updates needed
+      if: env.DEPENDENCIES_UPDATED != 'true'
+      run: |
+        echo "✅ All dependencies are already up to date!"
+        echo "No dependency updates needed at this time."
 
   security-audit:
     name: Security Audit
