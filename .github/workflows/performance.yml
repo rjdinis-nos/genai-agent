@@ -147,7 +147,7 @@ jobs:
         fi
         
     - name: Upload performance report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: performance-report
@@ -237,7 +237,7 @@ jobs:
         artillery report load-test-results.json --output load-test-report.html
         
     - name: Upload load test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: load-test-results
@@ -353,7 +353,7 @@ jobs:
         fi
         
     - name: Upload benchmark results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: benchmark-results
@@ -428,7 +428,7 @@ jobs:
         "
         
     - name: Upload resource monitoring results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: resource-monitoring
