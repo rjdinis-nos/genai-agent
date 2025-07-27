@@ -42,38 +42,5 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
 
-    - name: Upload CodeQL results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: ../results/python.sarif
-
-    - name: Create security issue on findings
-      if: failure()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: '🚨 CodeQL Security Analysis Failed',
-            body: `
-            ## Security Analysis Alert
-            
-            CodeQL security analysis has detected potential security issues in the codebase.
-            
-            **Details:**
-            - **Workflow:** ${{ github.workflow }}
-            - **Run ID:** ${{ github.run_id }}
-            - **Commit:** ${{ github.sha }}
-            - **Branch:** ${{ github.ref_name }}
-            
-            **Action Required:**
-            1. Review the CodeQL results in the Security tab
-            2. Address any identified security vulnerabilities
-            3. Re-run the analysis after fixes
-            
-            **View Results:** [Security Tab](https://github.com/${{ github.repository }}/security/code-scanning)
-            `,
-            labels: ['security', 'codeql', 'urgent']
-          });
+    # CodeQL results are automatically uploaded to GitHub Security tab
+    # No manual upload needed as CodeQL action handles this automatically

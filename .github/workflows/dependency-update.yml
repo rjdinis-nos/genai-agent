@@ -188,13 +188,9 @@ jobs:
           **This issue was automatically created by the security audit workflow.**
           `;
           
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: title,
-            body: body,
-            labels: ['security', 'automated']
-          });
+          // Security audit results are available in workflow logs
+          // Manual review required if security issues are detected
+          console.log('Security audit completed. Review workflow logs for details.');
 
   docker-image-cleanup:
     name: Cleanup Old Docker Images

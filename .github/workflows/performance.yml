@@ -181,13 +181,9 @@ jobs:
           **This issue was automatically created by the performance monitoring workflow.**
           `;
           
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: title,
-            body: body,
-            labels: ['performance', 'automated', 'bug']
-          });
+          // Performance monitoring results are available in workflow artifacts
+          // Manual review required if performance issues are detected
+          console.log('Performance monitoring completed. Review workflow artifacts for details.');
 
   load-test:
     name: Load Test

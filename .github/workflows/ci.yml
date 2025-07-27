@@ -89,9 +89,8 @@ jobs:
       with:
         context: .
         push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64
         cache-from: type=gha
         cache-to: type=gha,mode=max
@@ -111,7 +110,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@0.24.0
       with:
-        image-ref: ${{ needs.build.outputs.image-tag }}
+        image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest'
         format: 'sarif'
         output: 'trivy-results.sarif'
         
