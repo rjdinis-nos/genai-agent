@@ -45,7 +45,7 @@ echo "🛑 Stopping existing containers..."
 docker compose -f "$(dirname "$0")/docker-compose.yml" down > /dev/null 2>&1 || true
 
 # Start the application
-echo "🚀 Starting application..."
+echo "🐳 Starting application containers..."
 COMPOSE_FILE_ABS="$(dirname "$0")/docker-compose.yml"
 if [ "$HOST_PORT" != "8000" ]; then
     # Override port mapping
