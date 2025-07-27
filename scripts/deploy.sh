@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Deploy script for FastAPI File Downloader & PDF Summarizer
+# Deploy script for GenAI Agent
 # This script deploys the Docker container to production environments
 
 set -e  # Exit on any error
 
 # Configuration
-IMAGE_NAME="fastapi-file-downloader"
+IMAGE_NAME="genai-agent"
 IMAGE_TAG="${1:-latest}"
 CONTAINER_NAME="fastapi-app-prod"
 HOST_PORT="${2:-80}"

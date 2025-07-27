@@ -1,4 +1,4 @@
-# FastAPI File Downloader & PDF Summarizer
+# GenAI Agent
 
 A FastAPI application that provides two main endpoints:
 1. **File Download**: Download files from the internet

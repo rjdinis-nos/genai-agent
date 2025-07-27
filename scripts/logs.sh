@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Logs script for FastAPI File Downloader & PDF Summarizer
+# Logs script for GenAI Agent
 # This script helps view and manage container logs
 
 set -e  # Exit on any error

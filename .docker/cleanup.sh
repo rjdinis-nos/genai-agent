@@ -140,7 +140,7 @@ if [ "$CLEANUP_IMAGES" = true ]; then
     
     if confirm "Remove FastAPI Docker images?"; then
         # Remove project-specific images
-        docker rmi fastapi-file-downloader:latest > /dev/null 2>&1 || true
+        docker rmi genai-agent:latest > /dev/null 2>&1 || true
         docker rmi $(docker images -q --filter "reference=*fastapi*") > /dev/null 2>&1 || true
         
         # Remove dangling images

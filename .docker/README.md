@@ -1,4 +1,4 @@
-# Docker Compose Setup for FastAPI File Downloader & PDF Summarizer
+# Docker Compose Setup for GenAI Agent
 
 This directory contains Docker Compose configurations and scripts for containerizing and managing the FastAPI application using modern Docker Compose workflows.
 

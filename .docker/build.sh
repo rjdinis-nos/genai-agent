@@ -35,7 +35,7 @@ if [ $? -eq 0 ]; then
     # Show image details
     echo ""
     echo "📋 Image details:"
-    docker images fastapi-file-downloader --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
+    docker images genai-agent --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
     
     echo ""
     echo "🚀 To run the application, use:"

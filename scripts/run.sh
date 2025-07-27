@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Run script for FastAPI File Downloader & PDF Summarizer
+# Run script for GenAI Agent
 # This script runs the Docker container locally for development/testing
 
 set -e  # Exit on any error
 
 # Configuration
-IMAGE_NAME="fastapi-file-downloader"
+IMAGE_NAME="genai-agent"
 IMAGE_TAG="${1:-latest}"
 CONTAINER_NAME="fastapi-app"
 HOST_PORT="${2:-8000}"

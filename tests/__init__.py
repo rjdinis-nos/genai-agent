@@ -1,1 +1,1 @@
-# Tests package for FastAPI File Downloader & PDF Summarizer
+# Tests package for GenAI Agent

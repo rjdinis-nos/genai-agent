@@ -1,6 +1,6 @@
 # GitHub CI/CD Workflows
 
-This directory contains comprehensive GitHub Actions workflows for the FastAPI File Downloader & PDF Summarizer project. These workflows provide automated testing, building, deployment, security scanning, and performance monitoring.
+This directory contains comprehensive GitHub Actions workflows for the GenAI Agent project. These workflows provide automated testing, building, deployment, security scanning, and performance monitoring.
 
 ## 📁 Workflow Files
 

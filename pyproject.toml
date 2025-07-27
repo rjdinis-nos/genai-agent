@@ -1,5 +1,5 @@
 [project]
-name = "fastapi-file-downloader"
+name = "genai-agent"
 version = "0.1.0"
 description = "FastAPI application for downloading files and summarizing PDFs using Google Gemini"
 authors = [

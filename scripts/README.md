@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains shell scripts for building, running, and deploying the FastAPI File Downloader & PDF Summarizer application in Docker containers.
+This directory contains shell scripts for building, running, and deploying the GenAI Agent application in Docker containers.
 
 ## Prerequisites
 
@@ -164,7 +164,7 @@ After running the container, the application will be available at:
 
 ### Container won't start
 1. Check if Docker is running: `docker info`
-2. Verify image exists: `docker images fastapi-file-downloader`
+2. Verify image exists: `docker images genai-agent`
 3. Check logs: `./scripts/logs.sh`
 
 ### Port already in use

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Build script for FastAPI File Downloader & PDF Summarizer
+# Build script for GenAI Agent
 # This script builds the Docker image for the application
 
 set -e  # Exit on any error
 
 # Configuration
-IMAGE_NAME="fastapi-file-downloader"
+IMAGE_NAME="genai-agent"
 IMAGE_TAG="${1:-latest}"
 FULL_IMAGE_NAME="${IMAGE_NAME}:${IMAGE_TAG}"
 

@@ -26,7 +26,7 @@ fi
 cd "$(dirname "$0")/.."
 
 # Build the main image first if it doesn't exist
-if ! docker image inspect fastapi-file-downloader:latest > /dev/null 2>&1; then
+if ! docker image inspect genai-agent:latest > /dev/null 2>&1; then
     echo "📦 Main image not found. Building..."
     .docker/build.sh
 fi

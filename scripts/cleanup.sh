@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Cleanup script for FastAPI File Downloader & PDF Summarizer
+# Cleanup script for GenAI Agent
 # This script cleans up Docker containers, images, and volumes
 
 set -e  # Exit on any error
 
 # Configuration
-IMAGE_NAME="fastapi-file-downloader"
+IMAGE_NAME="genai-agent"
 CONTAINER_NAME_DEV="fastapi-app"
 CONTAINER_NAME_PROD="fastapi-app-prod"
 NETWORK_NAME="fastapi-network"
