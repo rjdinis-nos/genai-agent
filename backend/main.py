@@ -34,6 +34,30 @@ async def health_check():
     import psutil
     from datetime import datetime
     
+    def format_bytes(bytes_value):
+        """Convert bytes to human readable format"""
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if bytes_value < 1024.0:
+                return f"{bytes_value:.1f} {unit}"
+            bytes_value /= 1024.0
+        return f"{bytes_value:.1f} PB"
+    
+    def format_uptime(uptime_seconds):
+        """Convert uptime seconds to human readable format"""
+        days = int(uptime_seconds // 86400)
+        hours = int((uptime_seconds % 86400) // 3600)
+        minutes = int((uptime_seconds % 3600) // 60)
+        seconds = int(uptime_seconds % 60)
+        
+        if days > 0:
+            return f"{days}d {hours}h {minutes}m {seconds}s"
+        elif hours > 0:
+            return f"{hours}h {minutes}m {seconds}s"
+        elif minutes > 0:
+            return f"{minutes}m {seconds}s"
+        else:
+            return f"{seconds}s"
+    
     try:
         # Check if downloads directory is accessible
         downloads_accessible = download_dir.exists() and download_dir.is_dir()
@@ -44,23 +68,27 @@ async def health_check():
         # Get system information
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
+        current_time = datetime.utcnow()
+        uptime_seconds = time.time()
         
         health_data = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
             "version": "1.0.0",
-            "uptime": time.time(),
+            "uptime": format_uptime(uptime_seconds),
             "system": {
                 "python_version": sys.version.split()[0],
                 "memory_usage": {
-                    "total": memory.total,
-                    "available": memory.available,
-                    "percent": memory.percent
+                    "total": format_bytes(memory.total),
+                    "available": format_bytes(memory.available),
+                    "used": format_bytes(memory.used),
+                    "percent": f"{memory.percent:.1f}%"
                 },
                 "disk_usage": {
-                    "total": disk.total,
-                    "free": disk.free,
-                    "percent": (disk.used / disk.total) * 100
+                    "total": format_bytes(disk.total),
+                    "free": format_bytes(disk.free),
+                    "used": format_bytes(disk.used),
+                    "percent": f"{(disk.used / disk.total) * 100:.1f}%"
                 }
             },
             "dependencies": {

@@ -173,20 +173,22 @@ parse_health_response() {
         
         # Memory information
         if jq -e '.system.memory_usage' "$response_file" > /dev/null; then
-            local memory_total=$(jq -r '.system.memory_usage.total // 0' "$response_file")
-            local memory_available=$(jq -r '.system.memory_usage.available // 0' "$response_file")
-            local memory_percent=$(jq -r '.system.memory_usage.percent // 0' "$response_file")
+            local memory_total=$(jq -r '.system.memory_usage.total // "N/A"' "$response_file")
+            local memory_available=$(jq -r '.system.memory_usage.available // "N/A"' "$response_file")
+            local memory_used=$(jq -r '.system.memory_usage.used // "N/A"' "$response_file")
+            local memory_percent=$(jq -r '.system.memory_usage.percent // "N/A"' "$response_file")
             
-            echo -e "Memory: $(format_bytes $memory_available) available / $(format_bytes $memory_total) total (${memory_percent}% used)"
+            echo -e "Memory: ${memory_available} available / ${memory_total} total (${memory_used} used, ${memory_percent} used)"
         fi
         
         # Disk information
         if jq -e '.system.disk_usage' "$response_file" > /dev/null; then
-            local disk_total=$(jq -r '.system.disk_usage.total // 0' "$response_file")
-            local disk_free=$(jq -r '.system.disk_usage.free // 0' "$response_file")
-            local disk_percent=$(jq -r '.system.disk_usage.percent // 0' "$response_file")
+            local disk_total=$(jq -r '.system.disk_usage.total // "N/A"' "$response_file")
+            local disk_free=$(jq -r '.system.disk_usage.free // "N/A"' "$response_file")
+            local disk_used=$(jq -r '.system.disk_usage.used // "N/A"' "$response_file")
+            local disk_percent=$(jq -r '.system.disk_usage.percent // "N/A"' "$response_file")
             
-            echo -e "Disk: $(format_bytes $disk_free) free / $(format_bytes $disk_total) total (${disk_percent}% used)"
+            echo -e "Disk: ${disk_free} free / ${disk_total} total (${disk_used} used, ${disk_percent} used)"
         fi
     fi
     
