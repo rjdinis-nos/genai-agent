@@ -152,4 +152,5 @@ downloads/
 .dockerignore
 
 # Temporary files
-Dockerfile.test
+# Allow Dockerfile.test in .docker directory
+!.docker/Dockerfile.test

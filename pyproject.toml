@@ -1,10 +1,12 @@
 [project]
-name = "genai-agent"
+name = "fastapi-file-downloader"
 version = "0.1.0"
 description = "FastAPI application for downloading files and summarizing PDFs using Google Gemini"
 authors = [
     {name = "Ricardo Dinis", email = "basalto@gmail.com"}
 ]
+requires-python = ">=3.9"
+readme = "README.md"
 dependencies = [
     "fastapi==0.109.0",
     "uvicorn==0.27.0",
@@ -14,16 +16,7 @@ dependencies = [
     "google-generativeai==0.3.2",
     "python-dotenv==1.0.0",
 ]
-requires-python = ">=3.9"
-readme = "README.md"
 license = {text = "MIT"}
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["main.py"]
 
 [tool.uv]
 dev-dependencies = [
