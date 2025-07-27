@@ -5,6 +5,14 @@ on:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  actions: read
+  pull-requests: write
+  issues: write
+
 jobs:
   validate:
     name: Validate Pull Request

@@ -20,6 +20,13 @@ on:
         default: '5'
         type: string
 
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  actions: read
+  issues: write
+
 jobs:
   performance-test:
     name: Performance Test
