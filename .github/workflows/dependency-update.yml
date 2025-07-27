@@ -70,7 +70,7 @@ jobs:
         echo "GEMINI_API_KEY=test_key_for_deps" > .env
         # Temporarily skip Docker build to fix badge status
         echo "Docker build test skipped for badge status fix"
-        # cd scripts/compose
+        # cd scripts/docker
         # ./build.sh
         # ./test.sh
         
@@ -146,7 +146,7 @@ jobs:
         echo "Docker security scan skipped for badge status fix"
         # Build image for scanning
         # echo "GEMINI_API_KEY=test_key_for_security" > .env
-        # cd scripts/compose
+        # cd scripts/docker
         # ./build.sh
         # cd ../..
         # 
@@ -295,7 +295,7 @@ jobs:
         fi
         
         # Check for outdated documentation
-        if [ README.md -ot backend/main.py ]; then
+        if [ README.md -ot src/main.py ]; then
           echo "⚠️ README.md might be outdated (older than main.py)"
         fi
         
@@ -307,7 +307,7 @@ jobs:
         fi
         
         # Check for TODO comments in main code
-        todos=$(grep -r "TODO\|FIXME" --include="*.py" backend/ || true)
+        todos=$(grep -r "TODO\|FIXME" --include="*.py" src/ || true)
         if [ -n "$todos" ]; then
           echo "📝 TODO items found in code:"
           echo "$todos"

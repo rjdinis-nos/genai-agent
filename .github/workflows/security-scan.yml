@@ -58,11 +58,11 @@ jobs:
 
     - name: Run Bandit security linter
       run: |
-        bandit -r backend/ -f json -o bandit-report.json || true
+        bandit -r src/ -f json -o bandit-report.json || true
 
     - name: Run Semgrep security scan
       run: |
-        semgrep --config=auto backend/ --json --output=semgrep-report.json || true
+        semgrep --config=auto src/ --json --output=semgrep-report.json || true
 
     - name: Upload security reports
       uses: actions/upload-artifact@v4

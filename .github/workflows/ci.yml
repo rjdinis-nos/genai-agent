@@ -37,16 +37,16 @@ jobs:
         
     - name: Build test image
       run: |
-        docker compose -f scripts/compose/docker-compose.test.yml build
+        docker compose -f .docker/docker-compose.test.yml build
         
     - name: Run tests
       run: |
-        docker compose -f scripts/compose/docker-compose.test.yml --profile test run --rm fastapi-test
+        docker compose -f .docker/docker-compose.test.yml --profile test run --rm fastapi-test
         
     - name: Cleanup test containers
       if: always()
       run: |
-        docker compose -f scripts/compose/docker-compose.test.yml --profile test down || true
+        docker compose -f .docker/docker-compose.test.yml --profile test down || true
 
   build:
     name: Build Docker Image

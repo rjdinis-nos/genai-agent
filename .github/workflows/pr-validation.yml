@@ -43,12 +43,12 @@ jobs:
         echo "🔍 Running code quality checks..."
         
         # Check Python syntax
-        uv run python -m py_compile backend/main.py
+        uv run python -m py_compile src/main.py
         uv run python -m py_compile tests/test_api.py
         
         # Run basic linting (if you want to add flake8 or black)
-        # uv run flake8 backend/ tests/
-        # uv run black --check backend/ tests/
+        # uv run flake8 src/ tests/
+        # uv run black --check src/ tests/
         
     - name: Validate Docker configuration
       run: |
@@ -56,12 +56,12 @@ jobs:
         
         # Validate Dockerfile syntax
         docker build --no-cache --target builder -f Dockerfile . || echo "Dockerfile validation completed"
-        docker build --no-cache --target builder -f scripts/compose/Dockerfile.test . || echo "Test Dockerfile validation completed"
+        docker build --no-cache --target builder -f .docker/Dockerfile.test . || echo "Test Dockerfile validation completed"
         
         # Validate Docker Compose files
-        docker compose -f scripts/compose/docker-compose.yml config
-        docker compose -f scripts/compose/docker-compose.prod.yml config
-        docker compose -f scripts/compose/docker-compose.test.yml config
+        docker compose -f .docker/docker-compose.dev.yml config
+        docker compose -f .docker/docker-compose.prod.yml config
+        docker compose -f .docker/docker-compose.test.yml config
         
     - name: Run tests locally
       run: |
@@ -73,25 +73,25 @@ jobs:
       run: |
         echo "🔨 Testing Docker Compose build..."
         echo "GEMINI_API_KEY=test_key_for_pr" > .env
-        scripts/compose/build.sh
+        scripts/docker/_build.sh --env dev
         
     - name: Run containerized tests
       run: |
         echo "🐳 Running containerized tests..."
-        scripts/compose/test.sh
+        scripts/docker/_test.sh --env test
         
     - name: Check for security issues
       run: |
         echo "🔒 Checking for security issues..."
         
         # Check for hardcoded secrets (basic check)
-        if grep -r "api_key\|password\|secret" --include="*.py" --include="*.yml" --include="*.yaml" backend/ .github/ scripts/compose/ | grep -v "GEMINI_API_KEY" | grep -v "test_key"; then
+        if grep -r "api_key\|password\|secret" --include="*.py" --include="*.yml" --include="*.yaml" src/ .github/ .docker/ | grep -v "GEMINI_API_KEY" | grep -v "test_key"; then
           echo "❌ Potential hardcoded secrets found!"
           exit 1
         fi
         
         # Check for TODO/FIXME comments that might indicate incomplete work
-        if grep -r "TODO\|FIXME\|XXX" --include="*.py" backend/ tests/; then
+        if grep -r "TODO\|FIXME\|XXX" --include="*.py" src/ tests/; then
           echo "⚠️ Found TODO/FIXME comments - please review"
         fi
         
@@ -105,11 +105,11 @@ jobs:
           "pyproject.toml"
           "Dockerfile"
           ".gitignore"
-          "backend/main.py"
+          "src/main.py"
           "tests/test_api.py"
-          "scripts/compose/docker-compose.yml"
-          "scripts/compose/docker-compose.prod.yml"
-          "scripts/compose/docker-compose.test.yml"
+          ".docker/docker-compose.dev.yml"
+          ".docker/docker-compose.prod.yml"
+          ".docker/docker-compose.test.yml"
         )
         
         for file in "${required_files[@]}"; do
@@ -124,7 +124,7 @@ jobs:
     - name: Generate test coverage report
       run: |
         echo "📊 Generating test coverage report..."
-        uv run pytest --cov=backend --cov-report=term-missing --cov-report=xml
+        uv run pytest --cov=src --cov-report=term-missing --cov-report=xml
         
     - name: Comment PR with results
       uses: actions/github-script@v7

@@ -106,7 +106,7 @@ jobs:
         if [ "$HOST" = "http://localhost:8000" ]; then
           echo "Starting local server for testing..."
           echo "GEMINI_API_KEY=test_key_for_perf" > .env
-          scripts/compose/run.sh &
+          scripts/docker/_run.sh --env dev &
           sleep 10
         fi
         
@@ -230,7 +230,7 @@ jobs:
         
         # Start application
         echo "GEMINI_API_KEY=test_key_for_load" > .env
-        scripts/compose/run.sh &
+        scripts/docker/_run.sh --env dev &
         sleep 15
         
         # Run load test
@@ -312,7 +312,7 @@ jobs:
         
         # Start application
         echo "GEMINI_API_KEY=test_key_for_monitoring" > .env
-        scripts/compose/run.sh &
+        scripts/docker/_run.sh --env dev &
         APP_PID=$!
         sleep 10
         
