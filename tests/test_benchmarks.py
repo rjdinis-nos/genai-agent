@@ -79,12 +79,13 @@ class TestAPIBenchmarks:
         mock_response.status_code = 200
         mock_response.headers = {'content-type': 'application/json'}
         mock_response.content = b'{"test": "data"}'
+        mock_response.iter_content.return_value = [b'{"test": "data"}']
+        mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         def download_request():
-            return client.post("/download", json={
-                "url": "https://example.com/test.json",
-                "filename": "benchmark.json"
+            return client.post("/download", params={
+                "url": "https://example.com/test.json"
             })
         
         result = benchmark(download_request)
@@ -92,13 +93,24 @@ class TestAPIBenchmarks:
         
     @patch.dict(os.environ, {'GEMINI_API_KEY': 'test_key'})
     @patch('backend.main.genai.GenerativeModel')
-    @patch('backend.main.PyPDF2.PdfReader')
-    def test_summarize_endpoint_benchmark(self, mock_pdf, mock_genai, benchmark):
+    @patch('backend.main.PdfReader')
+    @patch('backend.main.tempfile.NamedTemporaryFile')
+    @patch('backend.main.os.unlink')
+    def test_summarize_endpoint_benchmark(self, mock_unlink, mock_temp_file, mock_pdf_class, mock_genai, benchmark):
         """Benchmark the summarize endpoint."""
-        # Mock PDF reader
+        # Mock temporary file
+        mock_temp = Mock()
+        mock_temp.name = '/tmp/test.pdf'
+        mock_temp.__enter__ = Mock(return_value=mock_temp)
+        mock_temp.__exit__ = Mock(return_value=None)
+        mock_temp_file.return_value = mock_temp
+        
+        # Mock PDF reader instance
+        mock_pdf_instance = Mock()
         mock_page = Mock()
         mock_page.extract_text.return_value = "Test PDF content for benchmarking"
-        mock_pdf.return_value.pages = [mock_page]
+        mock_pdf_instance.pages = [mock_page]
+        mock_pdf_class.return_value = mock_pdf_instance
         
         # Mock Gemini AI
         mock_model = Mock()
