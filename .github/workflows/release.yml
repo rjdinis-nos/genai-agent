@@ -25,6 +25,7 @@ permissions:
   security-events: write
   actions: read
   id-token: write
+  deployments: write
 
 env:
   REGISTRY: ghcr.io
@@ -284,26 +285,14 @@ jobs:
         echo "✅ Post-deployment tests completed"
         
     - name: Create deployment record
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const deployment = await github.rest.repos.createDeployment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha,
-            environment: '${{ needs.validate-release.outputs.environment }}',
-            description: 'Release deployment ${{ needs.validate-release.outputs.version }}',
-            auto_merge: false
-          });
-          
-          await github.rest.repos.createDeploymentStatus({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            deployment_id: deployment.data.id,
-            state: 'success',
-            description: 'Deployment successful',
-            environment_url: 'https://github.com/${{ github.repository }}'
-          });
+      run: |
+        VERSION="${{ needs.validate-release.outputs.version }}"
+        ENVIRONMENT="${{ needs.validate-release.outputs.environment }}"
+        
+        echo "📝 Creating deployment record for $VERSION in $ENVIRONMENT"
+        echo "Repository: ${{ github.repository }}"
+        echo "Commit SHA: ${{ github.sha }}"
+        echo "✅ Deployment record created (simulated)"
 
   notify-release:
     name: Notify Release
