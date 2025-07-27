@@ -204,12 +204,31 @@ jobs:
           const owner = context.repo.owner;
           const repo = context.repo.repo;
           
-          // Get all package versions
-          const packages = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-            package_type: 'container',
-            package_name: repo,
-            org: owner
-          });
+          // Get all package versions (try user account first, then org)
+          let packages;
+          try {
+            packages = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+              package_type: 'container',
+              package_name: repo,
+              username: owner
+            });
+          } catch (error) {
+            if (error.status === 404) {
+              console.log('No container packages found for user, trying organization...');
+              try {
+                packages = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                  package_type: 'container',
+                  package_name: repo,
+                  org: owner
+                });
+              } catch (orgError) {
+                console.log('No container packages found for organization either. Skipping cleanup.');
+                return;
+              }
+            } else {
+              throw error;
+            }
+          }
           
           // Keep only the latest 10 versions
           const versionsToDelete = packages.data.slice(10);
@@ -217,12 +236,26 @@ jobs:
           for (const version of versionsToDelete) {
             if (version.metadata.container.tags.length === 0) {
               console.log(`Deleting untagged version: ${version.id}`);
-              await github.rest.packages.deletePackageVersionForOrg({
-                package_type: 'container',
-                package_name: repo,
-                org: owner,
-                package_version_id: version.id
-              });
+              try {
+                await github.rest.packages.deletePackageVersionForUser({
+                  package_type: 'container',
+                  package_name: repo,
+                  username: owner,
+                  package_version_id: version.id
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  // Try organization deletion
+                  await github.rest.packages.deletePackageVersionForOrg({
+                    package_type: 'container',
+                    package_name: repo,
+                    org: owner,
+                    package_version_id: version.id
+                  });
+                } else {
+                  throw error;
+                }
+              }
             }
           }
           
