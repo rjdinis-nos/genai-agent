@@ -120,6 +120,7 @@ jobs:
                --headless
                
     - name: Analyze performance results
+      id: analyze
       run: |
         echo "📊 Analyzing performance results..."
         
@@ -138,11 +139,13 @@ jobs:
           if (( $(echo "$AVG_RESPONSE_TIME > 2000" | bc -l) )); then
             echo "⚠️ Average response time exceeds 2000ms threshold"
             echo "PERFORMANCE_WARNING=true" >> $GITHUB_ENV
+            echo "performance_warning=true" >> $GITHUB_OUTPUT
           fi
           
           if (( $(echo "$FAILURE_RATE > 5" | bc -l) )); then
             echo "❌ Failure rate exceeds 5% threshold"
             echo "PERFORMANCE_FAILURE=true" >> $GITHUB_ENV
+            echo "performance_failure=true" >> $GITHUB_OUTPUT
           fi
         fi
         
@@ -156,7 +159,7 @@ jobs:
           performance-results_*.csv
           
     - name: Create performance issue
-      if: env.PERFORMANCE_FAILURE == 'true'
+      if: steps.analyze.outputs.performance_failure == 'true'
       uses: actions/github-script@v7
       with:
         script: |

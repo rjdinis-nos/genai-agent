@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/genai-baseline-agent:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sleep infinity
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/workspaces/genai-baseline-agent
+    networks:
+      - genai-network
+
+networks:
+  genai-network:
+    driver: bridge
