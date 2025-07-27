@@ -245,7 +245,7 @@ class TestAppConfiguration:
     
     def test_app_title(self):
         """Test that the app has the correct title"""
-        assert app.title == "File Downloader & PDF Summarizer API"
+        assert app.title == "GenAI Agent API"
     
     def test_downloads_directory_creation(self):
         """Test that downloads directory is created"""
