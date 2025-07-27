@@ -22,11 +22,12 @@ fi
 # Check if image exists, if not build it
 if ! docker image inspect "${IMAGE_NAME}:${IMAGE_TAG}" > /dev/null 2>&1; then
     echo "📦 Docker image ${IMAGE_NAME}:${IMAGE_TAG} not found. Building..."
-    if [ ! -f "./scripts/docker/build.sh" ]; then
-        echo "❌ Error: Required file './scripts/docker/build.sh' not found. Cannot build the Docker image."
+    BUILD_SCRIPT_PATH="$(dirname "$0")/docker/build.sh"
+    if [ ! -f "${BUILD_SCRIPT_PATH}" ]; then
+        echo "❌ Error: Required file '${BUILD_SCRIPT_PATH}' not found. Cannot build the Docker image."
         exit 1
     fi
-    ./scripts/docker/build.sh "${IMAGE_TAG}"
+    "${BUILD_SCRIPT_PATH}" "${IMAGE_TAG}"
 fi
 
 # Create a temporary Dockerfile for testing
