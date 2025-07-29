@@ -5,11 +5,136 @@
 
 set -e  # Exit on any error
 
-# Configuration
-SCRIPT_DIR="$(realpath "$(dirname "$0")")"
-DEV_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
-PROD_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
-TEST_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
+# Source global variables and utility functions
+source "$(dirname "$0")/_utils.sh"
+
+# Function to check service health
+check_service_health() {
+    local project_name="$1"
+    local environment="$2"
+    
+    port=$(docker compose -p "$project_name"-$environment ps --format "{{.Ports}}" | grep -oP '\d+(?=->)' | head -n1)
+    
+    echo "🏥 Checking $environment service health on http://localhost:$port..."
+    if docker compose -p "$project_name"-$environment ps --format "{{.Status}}" | grep -q "Up"; then
+        if curl -s -f "http://localhost:$port/docs" > /dev/null 2>&1; then
+            echo "✅ FastAPI $environment service is healthy and responding"
+
+        elif curl -s -f "http://localhost:$port" > /dev/null 2>&1; then
+            echo "⚠️ Container is running, but FastAPI $environment service is responding but docs endpoint may be unavailable"
+
+        else
+            echo "🔴 Container is running, but FastAPI $environment service is not responding"
+        fi
+    else
+        echo "🔴 No containers running for $environment environment"
+    fi
+    echo ""
+}
+
+check_service_status() {
+    echo ""
+    echo "🔍 FastAPI Service Status Check"
+    echo "================================="
+
+    local environment="$1"
+    local project_name="$2"
+
+    case $environment in
+        dev)
+            check_service_health "$project_name" "dev"
+            ;;
+        prod)
+            check_service_health "$project_name" "prod"
+            ;;
+        test)
+            ;;
+        all)
+            check_service_health "$project_name" "dev"
+            check_service_health "$project_name" "prod"
+            ;;
+        *)
+            echo "❌ Unknown environment: $environment"
+            show_usage
+            exit 1
+            ;;
+    esac
+}
+
+check_container_health() {
+    local environment="$1"
+    local project_name="$2"
+
+    # Get container status
+    local containers
+    local containers_count
+
+    echo "🏥 Checking $environment environment container health..."
+
+    containers=$(docker compose -p "$project_name"-$environment ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "")
+    containers_count=$(echo "$containers" | wc -l)
+    
+    if [ $containers_count -le "1" ] || [ "$containers" = "NAME	STATUS	PORTS" ]; then
+        echo "🔴 No containers running for $environment environment"
+        echo ""
+        return 0
+    else
+        echo "$containers"
+        echo ""
+    fi
+    
+    # Show detailed info if verbose
+    if [ "$VERBOSE" = "true" ]; then
+        echo "📋 Detailed container information:"
+        docker compose -p "$project_name"-$environment ps --format "table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\t{{.CreatedAt}}" 2>/dev/null || true
+        echo ""
+    fi
+    
+    # Show logs if requested
+    if [ "$SHOW_LOGS" = "true" ]; then
+        echo "📝 Recent logs (last 20 lines):"
+        docker compose -p "$project_name"-$environment logs --tail=20 2>/dev/null || echo "No logs available"
+        echo ""
+    fi
+}
+
+check_container_status() {
+    echo ""
+    echo "🔍 FastAPI Container Status Check"
+    echo "================================="
+
+    local environment="$1"
+    local project_name="$2"
+
+    case $environment in
+        dev)
+            check_container_health "$environment" "$project_name"
+            ;;
+        prod)
+            check_container_health "$environment" "$project_name"
+            ;;
+        test)
+            check_container_health "$environment" "$project_name"
+            ;;
+        all)
+            check_container_health "dev" "$project_name"
+            check_container_health "prod" "$project_name"
+            check_container_health "test" "$project_name"
+            ;;
+    esac
+}
+
+show_resource_counts() {
+    local environment="$1"
+    local project_name="$2"
+
+    echo "🐳 Docker System Information:"
+    echo "Active containers: $(docker compose -p "$project_name"-$environment ps | tail -n +2 | wc -l)"
+    echo "Total images: $(docker compose -p "$project_name"-$environment images | tail -n +2 | wc -l)"
+    echo "Networks: $(docker network ls | grep "$project_name"-$environment | wc -l)"
+    echo "Volumes: $(docker volume ls | grep "$project_name"-$environment | wc -l)"
+    echo ""
+} 
 
 # Function to show usage
 show_usage() {
@@ -22,6 +147,7 @@ show_usage() {
     echo "  all     Check all containers"
     echo ""
     echo "OPTIONS:"
+    echo "  -e, --env ENV    Environment: dev, prod, test (default: dev)"
     echo "  -v, --verbose    Show detailed container information"
     echo "  -l, --logs       Show recent logs for running containers"
     echo "  -h, --help       Show this help message"
@@ -33,164 +159,60 @@ show_usage() {
     echo "  $0 dev --logs   # Check dev containers and show logs"
 }
 
-# Function to check container status
-check_container_status() {
-    local compose_file="$1"
-    local env_name="$2"
-    
-    if [ ! -f "$compose_file" ]; then
-        echo "⚠️  Docker Compose file not found: $compose_file"
-        return 1
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -e|--env)
+                environment="${2:-dev}"
+                if ! validate_environment "$environment"; then
+                    show_usage
+                    exit 1
+                fi
+                shift 2
+                ;;
+            -v|--verbose)
+                VERBOSE="true"
+                shift
+                ;;
+            -l|--logs)
+                SHOW_LOGS="true"
+                shift
+                ;;
+            -h|--help)
+                show_usage
+                exit 0
+                ;;
+            *)
+                echo "❌ Unknown option: $1"
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+}  
+
+main() {
+    # Parse command line arguments and set global variables
+    VERBOSE="false"
+    SHOW_LOGS="false"
+
+    # Parse arguments
+    parse_args "$@"
+
+    project_name=$(get_project_name)
+    echo "✅ Project name: $project_name"
+
+    check_container_status "$environment" "$project_name"
+    check_service_status "$environment" "$project_name"
+
+    if [ ! $environment = "all" ]; then
+        show_resource_counts "$environment" "$project_name"
     fi
-    
-    echo "📊 Checking $env_name containers..."
-    echo "Compose file: $compose_file"
-    echo ""
-    
-    # Get container status
-    local containers
-    containers=$(docker compose -f "$compose_file" ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "")
-    
-    if [ -z "$containers" ] || [ "$containers" = "NAME	STATUS	PORTS" ]; then
-        echo "🔴 No containers running for $env_name environment"
-        echo ""
-        return 0
-    fi
-    
-    echo "$containers"
-    echo ""
-    
-    # Show detailed info if verbose
-    if [ "$VERBOSE" = "true" ]; then
-        echo "📋 Detailed container information:"
-        docker compose -f "$compose_file" ps --format "table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\t{{.CreatedAt}}" 2>/dev/null || true
-        echo ""
-    fi
-    
-    # Show logs if requested
-    if [ "$SHOW_LOGS" = "true" ]; then
-        echo "📝 Recent logs (last 20 lines):"
-        docker compose -f "$compose_file" logs --tail=20 2>/dev/null || echo "No logs available"
-        echo ""
-    fi
+
+    echo "📋 Management commands:"
+    echo "   • Start containers: $(realpath -e --relative-to=$PWD $SCRIPT_DIR)/run.sh [env]"
+    echo "   • Stop containers: $(realpath -e --relative-to=$PWD $SCRIPT_DIR)/stop.sh [env]"
+    echo "   • View logs: $(realpath -e --relative-to=$PWD $SCRIPT_DIR)/logs.sh [env] -f"
 }
 
-# Function to check service health
-check_service_health() {
-    local service_url="$1"
-    local service_name="$2"
-    
-    echo "🏥 Checking $service_name health..."
-    
-    if curl -s -f "$service_url/docs" > /dev/null 2>&1; then
-        echo "✅ $service_name is healthy and responding"
-    elif curl -s -f "$service_url" > /dev/null 2>&1; then
-        echo "⚠️  $service_name is responding but docs endpoint may be unavailable"
-    else
-        echo "🔴 $service_name is not responding"
-    fi
-    echo ""
-}
-
-# Parse command line arguments
-ENVIRONMENT=""
-VERBOSE="false"
-SHOW_LOGS="false"
-
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        dev|prod|test|all)
-            ENVIRONMENT="$1"
-            shift
-            ;;
-        -v|--verbose)
-            VERBOSE="true"
-            shift
-            ;;
-        -l|--logs)
-            SHOW_LOGS="true"
-            shift
-            ;;
-        -h|--help)
-            show_usage
-            exit 0
-            ;;
-        *)
-            echo "❌ Unknown option: $1"
-            show_usage
-            exit 1
-            ;;
-    esac
-done
-
-# Default environment
-ENVIRONMENT="${ENVIRONMENT:-dev}"
-
-echo "🔍 FastAPI Container Status Check"
-echo "================================="
-
-# Check if Docker and Docker Compose are running
-if ! docker info > /dev/null 2>&1; then
-    echo "❌ Error: Docker is not running. Please start Docker and try again."
-    exit 1
-fi
-
-if ! docker compose version > /dev/null 2>&1; then
-    echo "❌ Error: Docker Compose is not available. Please install Docker Compose."
-    exit 1
-fi
-
-# Navigate to project root
-cd "$SCRIPT_DIR/.."
-
-case $ENVIRONMENT in
-    dev)
-        check_container_status "$DEV_COMPOSE_FILE" "development"
-        # Check if dev service is accessible
-        if docker compose -f "$DEV_COMPOSE_FILE" ps --format "{{.Status}}" | grep -q "Up"; then
-            check_service_health "http://localhost:8000" "Development API"
-        fi
-        ;;
-    prod)
-        check_container_status "$PROD_COMPOSE_FILE" "production"
-        # Check if prod service is accessible
-        if docker compose -f "$PROD_COMPOSE_FILE" ps --format "{{.Status}}" | grep -q "Up"; then
-            check_service_health "http://localhost" "Production API"
-        fi
-        ;;
-    test)
-        check_container_status "$TEST_COMPOSE_FILE" "test"
-        ;;
-    all)
-        check_container_status "$DEV_COMPOSE_FILE" "development"
-        check_container_status "$PROD_COMPOSE_FILE" "production"
-        check_container_status "$TEST_COMPOSE_FILE" "test"
-        
-        # Check service health for running containers
-        if docker compose -f "$DEV_COMPOSE_FILE" ps --format "{{.Status}}" | grep -q "Up"; then
-            check_service_health "http://localhost:8000" "Development API"
-        fi
-        if docker compose -f "$PROD_COMPOSE_FILE" ps --format "{{.Status}}" | grep -q "Up"; then
-            check_service_health "http://localhost" "Production API"
-        fi
-        ;;
-    *)
-        echo "❌ Unknown environment: $ENVIRONMENT"
-        show_usage
-        exit 1
-        ;;
-esac
-
-# Show overall Docker status
-echo "🐳 Docker System Information:"
-echo "Active containers: $(docker ps --format "table {{.Names}}" | tail -n +2 | wc -l)"
-echo "Total images: $(docker images -q | wc -l)"
-echo "Networks: $(docker network ls --format "table {{.Name}}" | tail -n +2 | wc -l)"
-echo "Volumes: $(docker volume ls --format "table {{.Name}}" | tail -n +2 | wc -l)"
-echo ""
-
-echo "📋 Management commands:"
-echo "   • Start containers: $SCRIPT_DIR/run.sh [env]"
-echo "   • Stop containers: $SCRIPT_DIR/stop.sh [env]"
-echo "   • View logs: docker compose -f [compose-file] logs -f"
-echo "   • Restart: $SCRIPT_DIR/stop.sh [env] && $SCRIPT_DIR/run.sh [env]"
+main "$@"

@@ -1,11 +1,12 @@
 services:
   app:
+    image: ${PROJECT_NAME:?error}-${ENVIRONMENT:-prod}:${TAG:-latest}
     build:
       context: ..
       dockerfile: .docker/Dockerfile
-    container_name: ${PROJECT_NAME:-genai-agent}-app-prod
+    container_name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-prod}
     ports:
-      - "${HOST_PORT:-80}:8000"
+      - "${HOST_PORT:-8000}:80"
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
@@ -22,7 +23,7 @@ services:
           memory: 256M
           cpus: '0.25'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/docs"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -32,6 +33,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    command: ["uv", "run", "fastapi", "run", "./src/main.py", "--host", "0.0.0.0", "--port", "80"]
 
 volumes:
   downloads:
@@ -39,4 +41,4 @@ volumes:
 
 networks:
   default:
-    name: ${PROJECT_NAME:-genai-agent}-network
+    name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-prod}-network

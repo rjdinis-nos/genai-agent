@@ -4,50 +4,100 @@ This directory contains organized shell scripts and CLI tools for the GenAI Agen
 
 ## Directory Structure
 
-```
+```text
 scripts/
-├── cli/           # Command-line tools for API interaction
-│   ├── summarize-pdf.sh   # Comprehensive PDF summarization CLI
-│   ├── summarize.sh       # Simple PDF summarization one-liner
-│   └── README.md          # CLI tools documentation
-├── compose/       # Docker Compose orchestration scripts
-│   ├── build.sh           # Build images with Docker Compose
-│   ├── run.sh             # Run development environment
-│   ├── deploy.sh          # Deploy production environment
-│   ├── test.sh            # Run tests in containers
-│   ├── logs.sh            # View container logs
-│   ├── stop.sh            # Stop containers by environment
-│   ├── cleanup.sh         # Clean up Docker Compose resources
-│   ├── docker-compose.dev.yml # Development configuration (moved to .docker/)
-│   ├── docker-compose.prod.yml # Production configuration (moved to .docker/)
-│   ├── docker-compose.test.yml # Testing configuration (moved to .docker/)
-│   ├── Dockerfile.test    # Test-specific Dockerfile
-│   └── README.md          # Docker Compose documentation
-├── docker/        # Docker container management scripts
-│   ├── build.sh           # Build Docker images
-│   ├── run.sh             # Run development containers
-│   ├── deploy.sh          # Deploy production containers
-│   ├── test.sh            # Run tests in containers
-│   ├── logs.sh            # View container logs
-│   ├── cleanup.sh         # Clean up Docker resources
-│   └── README.md          # Docker scripts documentation
+├── api/           # API interaction CLI tools
+│   ├── healthcheck.sh     # Comprehensive health monitoring
+│   ├── health.sh          # Simple health check
+│   ├── download-file.sh   # File download CLI with options
+│   ├── download.sh        # Simple download wrapper
+│   ├── summarize-pdf.sh   # PDF summarization CLI with options
+│   ├── summarize.sh       # Simple summarization wrapper
+│   └── README.md          # API tools documentation
+├── docker/        # Unified Docker CLI and management scripts
+│   ├── cli.sh             # 🎯 MAIN CLI ENTRY POINT
+│   ├── _build.sh          # Build Docker images
+│   ├── _start.sh          # Start application containers
+│   ├── _tests.sh          # Run comprehensive test suite
+│   ├── _cleanup.sh        # Clean up Docker resources
+│   ├── _logs.sh           # View container logs
+│   ├── _status.sh         # Check container status
+│   ├── _stop.sh           # Stop running containers
+│   ├── _bash.sh           # Open shell in containers
+│   ├── _utils.sh          # Utility functions
+│   ├── .env.docker        # Auto-generated environment variables
+│   └── README.md          # Docker CLI documentation
 └── README.md      # This file - overview and quick start
+```
+
+## 🚀 Main Entry Points
+
+### Docker Operations (Unified CLI)
+
+**Primary Interface:** `scripts/docker/cli.sh`
+
+All Docker operations are accessed through the unified CLI:
+
+```bash
+# Build, start, test, manage containers
+./scripts/docker/cli.sh <command> [options]
+```
+
+### API Interaction Tools
+
+**Location:** `scripts/api/`
+
+Direct API interaction tools for health checks, downloads, and summarization:
+
+```bash
+# Health monitoring, file downloads, PDF summarization
+./scripts/api/<tool>.sh [options]
 ```
 
 ## Quick Start
 
-### For API Usage (CLI Tools)
+### 🐳 Docker Operations (Unified CLI)
+
 ```bash
+# Build the application
+./scripts/docker/cli.sh build
+
+# Start development environment
+./scripts/docker/cli.sh start
+
+# Run tests with coverage
+./scripts/docker/cli.sh tests --coverage
+
+# Check application status
+./scripts/docker/cli.sh status
+
+# View logs
+./scripts/docker/cli.sh logs -f
+
+# Clean up resources
+./scripts/docker/cli.sh cleanup
+```
+
+### 🔧 API Interaction Tools
+
+```bash
+# Health check with system details
+./scripts/api/healthcheck.sh -v
+
+# Download a file
+./scripts/api/download-file.sh https://example.com/file.pdf
+
 # Summarize a PDF document
 ./scripts/api/summarize-pdf.sh document.pdf
 
-# Quick one-liner summarization
+# Quick summarization
 ./scripts/api/summarize.sh report.pdf
 ```
 
-### For Development (Docker Scripts)
+### 🏗️ Development Workflow
+
 ```bash
-# Build and run the application
+# Complete development setup
 ./scripts/docker/build.sh
 ./scripts/docker/run.sh
 

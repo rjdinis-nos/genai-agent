@@ -1,9 +1,13 @@
 services:
-  test:
+  app:
+    image: ${PROJECT_NAME:?error}-${ENVIRONMENT:-dev}:${TAG:-latest}
     build:
       context: ..
       dockerfile: .docker/Dockerfile.test
-    container_name: ${PROJECT_NAME:-genai-agent}-test
+    container_name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-test}
+    ports:
+      - "${HOST_PORT:-8002}:80"
+    #tty: true
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
@@ -11,10 +15,12 @@ services:
       - ../src:/app/src
       - ../tests:/app/tests
       - ../pytest.ini:/app/pytest.ini
-    command: ["uv", "run", "pytest", "-v", "--tb=short"]
+    #command: ["uv", "run", "pytest", "-v", "--tb=short"]
+    #command: ["/bin/bash"]
+    command: ["uv", "run", "fastapi", "run", "./src/main.py", "--host", "0.0.0.0", "--port", "80"]
     profiles:
       - test
 
 networks:
   default:
-    name: ${PROJECT_NAME:-genai-agent}-network
+    name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-test}-network

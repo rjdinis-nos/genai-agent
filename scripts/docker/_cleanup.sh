@@ -4,44 +4,13 @@
 # This script removes all project-created Docker resources
 # Uses dynamic project name from .env.docker file
 
-# Source utility functions
-SOURCE_DIR="$(dirname "$0")"
-source "$SOURCE_DIR/_utils.sh"
-
 set -e  # Exit on any error
 
-# Generate Docker environment file to ensure consistency
-echo "📋 Generating Docker environment file..."
-"$SOURCE_DIR/_generate-env.sh"
-ENV_FILE="$SOURCE_DIR/.env.docker"
+# Source global variables and utility functions
+source "$(dirname "$0")/_utils.sh"
 
-# Source the environment file to get PROJECT_NAME
-if [ ! -f "$ENV_FILE" ]; then
-    echo "❌ Environment file not found: $ENV_FILE"
-    exit 1
-fi
-
-source "$ENV_FILE"
-
-if [ -z "$PROJECT_NAME" ]; then
-    echo "❌ PROJECT_NAME not found in environment file"
-    exit 1
-fi
-
-echo "📋 Using project name from .env.docker: $PROJECT_NAME"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Configuration
-SCRIPT_DIR="$(dirname "$0")"
-DEV_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
-PROD_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
-TEST_COMPOSE_FILE="$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
+# Get project name from pyproject.toml
+project_name=$(get_project_name)
 
 # Default values
 DRY_RUN=false
@@ -82,71 +51,24 @@ execute_cmd() {
     fi
 }
 
-# Function to show help
-show_help() {
-    cat << EOF
-Docker Cleanup Script for $PROJECT_NAME
-
-USAGE:
-    $0 [OPTIONS]
-
-DESCRIPTION:
-    Removes all Docker resources created by this project including:
-    • Containers (dev, prod, test environments)
-    • Images (${PROJECT_NAME}:latest and related)
-    • Volumes (${PROJECT_NAME}-downloads)
-    • Networks (${PROJECT_NAME}-network)
-    • Build cache
-
-OPTIONS:
-    --dry-run       Show what would be removed without executing
-    --force         Skip confirmation prompts
-    -v, --verbose   Show detailed command execution
-    -h, --help      Show this help message
-
-EXAMPLES:
-    $0                    # Interactive cleanup with confirmation
-    $0 --dry-run          # Preview what would be removed
-    $0 --force            # Remove all resources without prompts
-    $0 --verbose --dry-run # Preview with detailed output
-
-SAFETY:
-    • Only removes resources with project prefix: $PROJECT_NAME
-    • Safe to run - won't affect other Docker projects
-    • Use --dry-run to preview changes before execution
-EOF
-}
-
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        --force)
-            FORCE=true
-            shift
-            ;;
-        -v|--verbose)
-            VERBOSE=true
-            shift
-            ;;
-        -h|--help)
-            show_help
-            exit 0
-            ;;
-        *)
-            echo "❌ Unknown option: $1"
-            echo "Use --help for usage information"
-            exit 1
-            ;;
-    esac
-done
-
 # Function to stop and remove containers
 remove_containers() {
+    local project_name="$1"
+
     print_status "$BLUE" "🛑 Stopping and removing containers..."
+
+    for env in dev prod test; do
+        echo "Env: $env"
+        env_file=$(get_env_file "$env")
+        compose_file=$(get_compose_file "$env")
+        
+        echo "docker compose -f "$compose_file" --env-file "$env_file" ps --format "{{.Name}}"  2>/dev/null "
+        local containers=$(PROJECT_NAME="$project_name" docker compose -f "$compose_file" --env-file "$env_file" ps --format "{{.Name}}" 2>/dev/null || true)
+
+        if [ -n "$containers" ]; then
+            echo "    $env containers: $containers"
+        fi
+    done
     
     # List specific containers created by project scripts
     echo "  Listing containers to remove..."
@@ -156,7 +78,7 @@ remove_containers() {
     
     # Check for specific project containers by exact name
     local specific_containers=""
-    for container_name in "${PROJECT_NAME}-app" "${PROJECT_NAME}-app-prod" "${PROJECT_NAME}-test"; do
+    for container_name in "${project_name}-app" "${project_name}-app-prod" "${project_name}-test"; do
         if docker ps -a --format "{{.Names}}" | grep -q "^${container_name}$" 2>/dev/null; then
             specific_containers="$specific_containers $container_name"
         fi
@@ -295,45 +217,105 @@ remove_build_cache() {
 
 # Function to show resource counts
 show_resource_counts() {
+    local project_name="$1"
+
     if [ "$VERBOSE" = "true" ]; then
         echo ""
         print_status "$BLUE" "📊 Current Docker resources:"
-        echo "   Containers: $(docker ps -aq | wc -l)"
-        echo "   Images: $(docker images -q | wc -l)"
-        echo "   Volumes: $(docker volume ls -q | wc -l)"
-        echo "   Networks: $(docker network ls -q | wc -l)"
+        echo "   Containers: $(docker compose -p $PROJECT_NAME ps -aq | wc -l)"
+        echo "   Images: $(docker compose -p $PROJECT_NAME images -q | wc -l)"
+        echo "   Volumes: $(docker volume ls | grep "$project_name" | wc -l)"
+        echo "   Networks: $(docker network ls | grep "$project_name" | wc -l)"
         echo ""
     fi
 }
 
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Docker Cleanup Script"
+    echo ""
+    echo -e "${GREEN}Description:${NC}"
+    echo "Removes all Docker resources created by this project including:"
+    echo "  • Containers (dev, prod, test environments)"
+    echo "  • Images (${project_name}:latest and related)"
+    echo "  • Volumes (${project_name}-downloads)"
+    echo "  • Networks (${project_name}-network)"
+    echo "  • Build cache"
+    echo ""
+    echo -e "${GREEN}Options:${NC}"
+    echo "  --dry-run            Show what would be removed without executing"
+    echo "  --force              Skip confirmation prompts"
+    echo "  -v, --verbose        Enable verbose output"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo -e "${GREEN}Examples:${NC}"
+    echo "  $(dirname $(realpath -e --relative-to=$(pwd) $0))/cli.sh cleanup                      # Interactive cleanup with confirmation"
+    echo "  $(dirname $(realpath -e --relative-to=$(pwd) $0))/cli.sh cleanup --dry-run            # Preview what would be removed"
+    echo "  $(dirname $(realpath -e --relative-to=$(pwd) $0))/cli.sh cleanup --force              # Remove all resources without prompts"
+    echo "  $(dirname $(realpath -e --relative-to=$(pwd) $0))/cli.sh cleanup --verbose --dry-run  # Preview with detailed output"
+    echo ""
+    echo -e "${GREEN}Safety:${NC}"
+    echo "    • Only removes resources with project prefix: $project_name"
+    echo "    • Safe to run - won't affect other Docker projects"
+    echo "    • Use --dry-run to preview changes before execution"
+}
+
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --force)
+                FORCE=true
+                shift
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                echo "❌ Unknown option: $1"
+                echo "Use --help for usage information"
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+}
+
 # Main cleanup function
 main() {
-    # Check if Docker is running
-    if ! docker info > /dev/null 2>&1; then
-        print_status "$RED" "❌ Docker is not running. Please start Docker and try again."
-        exit 1
+    # Check for help or no arguments
+    if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+        show_usage
+        exit 0
     fi
-    
-    # Check if Docker Compose is available
-    if ! docker compose version > /dev/null 2>&1; then
-        print_status "$RED" "❌ Docker Compose is not available. Please install Docker Compose."
-        exit 1
-    fi
-    
-    # Show header
+
+    parse_args "$@"
+
+    # Get project name from pyproject.toml
+    PROJECT_NAME=$(get_project_name)
+    echo "✅ Project name: $PROJECT_NAME"
+
+    echo ""
     print_status "$BLUE" "🧹 Docker Cleanup Script"
     echo "======================================"
     print_status "$GREEN" "📦 Removing all project-created resources"
-    
     if [ "$DRY_RUN" = "true" ]; then
         print_status "$YELLOW" "🔍 DRY RUN MODE - No changes will be made"
     fi
-    
     echo ""
     
     # Show current resource counts
-    show_resource_counts
-    
+    show_resource_counts $PROJECT_NAME
+
     # Confirmation prompt (unless forced or dry-run)
     if [ "$FORCE" != "true" ] && [ "$DRY_RUN" != "true" ]; then
         print_status "$YELLOW" "Remove all project-created Docker resources? (containers, images, volumes, networks, cache)"
@@ -348,9 +330,9 @@ main() {
         print_status "$YELLOW" "🔍 DRY RUN - Showing what would be removed:"
         echo ""
     fi
-    
+
     # Execute cleanup steps
-    remove_containers
+    remove_containers $PROJECT_NAME
     remove_images
     remove_volumes
     remove_networks

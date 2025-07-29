@@ -5,25 +5,23 @@
 
 set -e  # Exit on any error
 
-# Configuration
-SCRIPT_DIR="$(realpath "$(dirname "$0")")"
-
-# Default values
-ENVIRONMENT="dev"
-USER="root"
+# Source global variables and utility functions
+source "$(dirname "$0")/_utils.sh"
 
 # Function to show usage
 show_usage() {
-    echo "Usage: $0 [ENVIRONMENT] [OPTIONS]"
+    echo "Usage: $0 [DEFAULT_ENV] [OPTIONS]"
     echo ""
     echo "Quick bash access to FastAPI containers"
     echo ""
-    echo "ENVIRONMENT:"
+    echo "Environment:"
     echo "  dev     Enter development container (default)"
     echo "  prod    Enter production container"
     echo "  test    Enter test container"
     echo ""
     echo "OPTIONS:"
+    echo "  -e, --env ENV      Environment: dev, prod, test (default: dev)"
+    echo "  -v, --verbose      Show detailed container information"
     echo "  -u, --user USER    User to run as (default: root)"
     echo "  -h, --help         Show this help message"
     echo ""
@@ -37,12 +35,19 @@ show_usage() {
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        dev|prod|test)
-            ENVIRONMENT="$1"
+        -e|--env)
+            environment="${2:-dev}"
+            if ! validate_environment "$environment"; then
+                exit 1
+            fi
+            shift 2
+            ;;
+        -v|--verbose)
+            VERBOSE="true"
             shift
             ;;
         -u|--user)
-            USER="$2"
+            user="${2:-root}"
             shift 2
             ;;
         -h|--help)
@@ -57,61 +62,35 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Get compose file for environment
-get_compose_file() {
-    case $ENVIRONMENT in
-        dev)
-            echo "$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
-            ;;
-        prod)
-            echo "$SCRIPT_DIR/../../.docker/docker-compose.prod.yml"
-            ;;
-        test)
-            echo "$SCRIPT_DIR/../../.docker/docker-compose.test.yml"
-            ;;
-        *)
-            echo "$SCRIPT_DIR/../../.docker/docker-compose.dev.yml"
-            ;;
-    esac
-}
 
-echo "🐚 Entering $ENVIRONMENT container with bash"
-echo "==========================================="
+# Get project name from pyproject.toml
+project_name=$(get_project_name)
+echo "✅ Project name: $project_name"
 
-# Check if Docker is running
-if ! docker info > /dev/null 2>&1; then
-    echo "❌ Error: Docker is not running. Please start Docker and try again."
-    exit 1
-fi
-
-# Navigate to project root
-cd "$SCRIPT_DIR/.."
+# Get env file
+env_file=$(get_env_file "$environment")
+echo "✅ Env file: $(realpath -s -e $env_file)"
 
 # Get compose file
-COMPOSE_FILE=$(get_compose_file)
+compose_file=$(get_compose_file "$environment")
+echo "✅ Compose file: $(realpath -s -e $compose_file)"
+
+echo
+echo "🐚 Entering $DEFAULT_ENV container with bash"
+echo "==========================================="
 
 # Check if container is running
-if ! docker compose -f "$COMPOSE_FILE" ps --services --filter "status=running" | grep -q "fastapi-app"; then
-    echo "❌ Error: No running containers found for $ENVIRONMENT environment"
+if ! docker compose -p $project_name-$environment ps --filter "status=running" | grep -q "$project_name"; then
+    echo "❌ Error: No running containers found for $DEFAULT_ENV environment"
     echo ""
     echo "💡 Start the container first:"
-    case $ENVIRONMENT in
-        dev)
-            echo "   $SCRIPT_DIR/run.sh"
-            ;;
-        prod)
-            echo "   $SCRIPT_DIR/deploy.sh"
-            ;;
-        test)
-            echo "   $SCRIPT_DIR/test.sh"
-            ;;
-    esac
+
     exit 1
 fi
 
-echo "🚪 Connecting to container as user: $USER"
+echo "🚪 Connecting to container as user: $user"
 echo "   • Type 'exit' to leave the container"
 echo ""
 
 # Enter container with bash
-docker compose -f "$COMPOSE_FILE" exec --user "$USER" fastapi-app bash
+docker compose -p $project_name-$environment exec --user "$user" app bash

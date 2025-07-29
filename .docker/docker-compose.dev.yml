@@ -1,26 +1,27 @@
 services:
   app:
+    image: ${PROJECT_NAME:?error}-${ENVIRONMENT:-dev}:${TAG:-latest}
     build:
       context: ..
       dockerfile: .docker/Dockerfile
-    container_name: ${PROJECT_NAME:-genai-agent}-app
+    container_name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-dev}
     ports:
-      - "${HOST_PORT:-8000}:8000"
+      - "${HOST_PORT:-8001}:80"
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    # env_file removed - passed via --env-file parameter to docker compose
     volumes:
       - ../downloads:/app/downloads
       - ../src:/app/src
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/docs"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    command: ["uv", "run", "fastapi", "dev", "./src/main.py", "--host", "0.0.0.0", "--port", "80"]
 
 networks:
   default:
-    name: ${PROJECT_NAME:-genai-agent}-network
+    name: ${PROJECT_NAME:?error}-${ENVIRONMENT:-dev}-network
