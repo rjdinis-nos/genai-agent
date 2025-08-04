@@ -170,7 +170,7 @@ jobs:
     
     steps:
     - name: Run comprehensive security scan
-      uses: aquasecurity/trivy-action@0.24.0
+      uses: aquasecurity/trivy-action@0.32.0
       with:
         image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
         format: 'sarif'
@@ -183,7 +183,7 @@ jobs:
         sarif_file: 'trivy-results.sarif'
         
     - name: Run security scan with JSON output
-      uses: aquasecurity/trivy-action@0.24.0
+      uses: aquasecurity/trivy-action@0.32.0
       with:
         image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
         format: 'json'
