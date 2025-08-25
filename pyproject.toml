@@ -11,7 +11,7 @@ dependencies = [
     "fastapi[standard]",
     "uvicorn==0.35.0",
     "python-multipart==0.0.20",
-    "requests==2.32.4",
+    "requests==2.32.5",
     "PyPDF2==3.0.1",
     "google-generativeai==0.8.5",
     "python-dotenv==1.1.1",
