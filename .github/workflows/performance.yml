@@ -160,7 +160,7 @@ jobs:
           
     - name: Create performance issue
       if: steps.analyze.outputs.performance_failure == 'true'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const title = '🐌 Performance Degradation Detected';
