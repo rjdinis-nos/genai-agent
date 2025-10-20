@@ -131,7 +131,7 @@ jobs:
         fi
         
     - name: Scan for secrets
-      uses: trufflesecurity/trufflehog@v3.63.2
+      uses: trufflesecurity/trufflehog@v3.90.11
       with:
         path: ./
         base: main
