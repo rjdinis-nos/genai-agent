@@ -1,4 +1,4 @@
-fastapi==0.116.1
+fastapi==0.121.2
 uvicorn==0.27.0
 python-multipart==0.0.6
 requests==2.31.0
